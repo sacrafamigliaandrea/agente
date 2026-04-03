@@ -49,6 +49,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 .cbtn{background:var(--paper);border:2px solid transparent;border-radius:12px;padding:14px;text-align:left;cursor:pointer;display:flex;align-items:flex-start;gap:12px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
 .cbtn:hover{border-color:var(--blu);box-shadow:0 4px 16px rgba(44,62,107,0.1);transform:translateY(-1px)}
 .cbtn.dn{border-color:var(--pet)}
+.cbtn.locked{opacity:0.55;cursor:default;filter:grayscale(0.4)}
+.cbtn.locked:hover{border-color:transparent;box-shadow:none;transform:none}
+.cbtn .lock-overlay{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--gri);margin-top:4px}
+.cbtn .lock-overlay svg{opacity:0.5}
+.diff-tag{display:inline-block;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:1px 6px;border-radius:3px;color:#fff;margin-left:6px;vertical-align:middle}
 .cbtn .cn{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
 .cbtn .ct{font-size:13px;font-weight:700;color:var(--blu);margin-bottom:1px}
 .cbtn .cs{font-size:11px;color:#777}
@@ -131,7 +136,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 .rbt button{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .bry{background:#fff;border:2px solid var(--blu);color:var(--blu)}.bry:hover{background:rgba(44,62,107,0.04)}
 .bmn{background:linear-gradient(135deg,var(--blu),var(--bluL));border:none;color:#fff}.bmn:hover{box-shadow:0 4px 16px rgba(44,62,107,0.25)}
-.site-footer{background:linear-gradient(135deg,var(--bluD),#111);color:rgba(255,255,255,0.4);padding:10px 20px;text-align:center;font-size:10px;letter-spacing:0.3px}
+.site-footer{color:var(--blu);padding:16px 20px;text-align:center;font-size:10px;letter-spacing:0.3px;opacity:0.5}
+.rank-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--bluD),var(--blu));border-radius:14px;padding:14px 20px;margin-bottom:20px;box-shadow:0 6px 24px rgba(26,39,68,0.25)}
+.rank-card img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);box-shadow:0 2px 10px rgba(212,168,67,0.3)}
+.rank-info{flex:1;color:#fff}
+.rank-info .rank-label{font-size:9px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.rank-info .rank-name{font-size:16px;font-weight:800;letter-spacing:-0.3px}
+.rank-info .rank-next{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px}
+.rank-stars{display:flex;gap:2px;margin-top:3px}
+.rank-bar{flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:6px;max-width:180px}
+.rank-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:2px;transition:width 0.6s ease-out}
+.star{display:inline-block;width:12px;height:12px}
+.star.on svg{fill:var(--gold);opacity:1}.star.off svg{fill:#fff;opacity:0.15}
+.case-stars{display:flex;gap:1px;margin-top:3px}
+.case-stars .star{width:10px;height:10px}
+.promo-box{background:linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.04));border:1px solid rgba(212,168,67,0.25);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center}
+.promo-box .promo-label{font-size:9px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.promo-box .promo-rank{font-size:20px;font-weight:800;color:var(--blu)}
+.promo-box .promo-stars{display:flex;justify-content:center;gap:3px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -235,11 +257,67 @@ const CS=[
   {id:10,title:"SIM Swapping",sub:"Identità digitale compromessa",av:"m",who:"Dott. Moretti, 45 anni",intro:"Telefono senza segnale. Portabilità a mia insaputa. Accesso a email, social, home banking. Bonifico 8.000 euro.",qs:[{id:"q1",l:"Come scoperta?",a:"Operatore conferma portabilità con copia documenti."},{id:"q2",l:"Come i documenti?",a:"Forse data breach."},{id:"q3",l:"Account compromessi?",a:"Gmail, LinkedIn, Facebook, home banking. Tutti con 2FA SMS."},{id:"q4",l:"Banca contattata?",a:"Conto bloccato, bonifico già partito."},{id:"q5",l:"Password cambiate?",a:"Provando, ma senza numero è complicato."}],sol:{tipo:["tipo_den"],norm:["art494","art615ter","art640ter"],azioni:["az_verbale","az_screenshot","az_operatore","az_banca","az_traffico","az_PM"]},fb:"Art. 494 + 615-ter + 640-ter. SIM swapping. Operatore, banca, dati traffico, PM. Frode d'ufficio."},
 ];
 let cc=null,ak=[],fs={tipo:[],norm:[],azioni:[]},xc=null,ft="all",dn={};
+
+const RANKS=[
+  {min:0,name:"Agente",stars:0},
+  {min:3,name:"Agente Scelto",stars:1},
+  {min:6,name:"Assistente",stars:2},
+  {min:9,name:"Sovrintendente",stars:3},
+  {min:12,name:"Vice Ispettore",stars:4},
+  {min:15,name:"Ispettore",stars:5},
+  {min:18,name:"Ispettore Capo",stars:6},
+  {min:22,name:"Commissario",stars:7},
+  {min:26,name:"Vice Questore",stars:8},
+  {min:30,name:"Questore",stars:9},
+];
+function caseStars(sc){if(sc>=100)return 3;if(sc>=80)return 2;if(sc>=50)return 1;return 0}
+// Unlock system: stars required to access each case + difficulty label
+const UNLOCK={
+  5:{req:0,diff:"Base",color:"#4A9A6A"},      // Smarrimento - trap case, easiest
+  1:{req:0,diff:"Base",color:"#4A9A6A"},      // Account rubato
+  7:{req:0,diff:"Base",color:"#4A9A6A"},      // Cyberbullismo
+  2:{req:4,diff:"Intermedio",color:"#E8A820"}, // Phishing
+  8:{req:4,diff:"Intermedio",color:"#E8A820"}, // Truffa e-commerce
+  6:{req:8,diff:"Avanzato",color:"#D47A20"},   // Cyberstalking
+  4:{req:8,diff:"Avanzato",color:"#D47A20"},   // Revenge porn
+  3:{req:14,diff:"Complesso",color:"#B04030"}, // Sextortion
+  9:{req:14,diff:"Complesso",color:"#B04030"}, // Adescamento
+  10:{req:20,diff:"Esperto",color:"#8B2020"},  // SIM Swapping
+};
+function isUnlocked(caseId){return totalStars()>=(UNLOCK[caseId]||{req:0}).req}
+function missingStars(caseId){const u=UNLOCK[caseId]||{req:0};const m=u.req-totalStars();return m>0?m:0}
+function totalStars(){let s=0;Object.values(dn).forEach(sc=>{s+=caseStars(sc)});return s}
+function getRank(s){let r=RANKS[0];for(let i=RANKS.length-1;i>=0;i--){if(s>=RANKS[i].min){r=RANKS[i];break}}return r}
+function nextRank(s){for(let i=0;i<RANKS.length;i++){if(s<RANKS[i].min)return RANKS[i]}return null}
+function starSVG(on,sz){sz=sz||12;return`<span class="star ${on?'on':'off'}"><svg width="${sz}" height="${sz}" viewBox="0 0 16 16"><path d="M8 1l2.2 4.5L15 6.3l-3.5 3.4.8 4.8L8 12.2 3.7 14.5l.8-4.8L1 6.3l4.8-.8L8 1z" fill="${on?'#D4A843':'#fff'}" opacity="${on?1:0.15}"/></svg></span>`}
+function starsRow(n,max,sz){let h='';for(let i=0;i<max;i++)h+=starSVG(i<n,sz);return h}
 function show(id){const sp=document.getElementById("splashScreen");if(sp)sp.style.display="none";["menuScreen","gameScreen","resultScreen"].forEach(s=>{const e=document.getElementById(s);e.style.display=s===id+"Screen"?(id==="game"?"flex":"block"):"none"});document.body.style.overflow=id==="game"?"hidden":"auto"}
 function goHome(){const sp=document.getElementById("splashScreen");sp.style.display="flex";sp.style.opacity="0";sp.classList.remove("out");["menuScreen","gameScreen","resultScreen"].forEach(s=>document.getElementById(s).style.display="none");requestAnimationFrame(()=>{sp.style.opacity="1"});document.body.style.overflow="hidden"}
 function showMenu(){show("menu");rMenu()}
-function rMenu(){document.getElementById("menuScreen").innerHTML=`<div class="mw"><div style="margin-bottom:12px"><button class="home-btn" onclick="goHome()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div><div class="mhero"><div class="hbadge">${I.shield}<div><h1>Commissariato Digitale</h1><div class="sub">Simulazione Polizia Postale</div></div></div><p class="mdesc">Sei un agente della Polizia Postale. Ascolta i cittadini, indaga, consulta il database normativo e istruisci correttamente la pratica.</p></div><div class="cgrid">${CS.map(c=>{const d=dn[c.id],cl=d!==undefined?"cbtn dn":"cbtn";const b=d!==undefined?`<span class="bdg" style="background:${d>=80?'var(--pet)':d>=50?'var(--amb)':'var(--ros)'}">${d}%</span>`:"";return`<button class="${cl}" onclick="go(${c.id})"><div style="flex-shrink:0">${av(c.av,52)}</div><div style="flex:1"><div class="cn">Caso #${c.id}</div><div class="ct">${c.title}</div><div class="cs">${c.sub}</div>${b}</div></button>`}).join("")}</div></div>${FOOTER}`}
-function go(id){cc=CS.find(c=>c.id===id);ak=[];fs={tipo:[],norm:[],azioni:[]};xc=null;ft="all";show("game");rGame()}
+function rMenu(){const ts=totalStars(),rk=getRank(ts),nx=nextRank(ts);const pct=nx?Math.round((ts-rk.min)/(nx.min-rk.min)*100):100;
+document.getElementById("menuScreen").innerHTML=`<div class="mw"><div style="margin-bottom:12px"><button class="home-btn" onclick="goHome()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div>
+<div class="rank-card">
+  <img src="post.jpg" alt="Agente">
+  <div class="rank-info">
+    <div class="rank-label">Il tuo grado</div>
+    <div class="rank-name">${rk.name}</div>
+    <div class="rank-stars">${starsRow(ts,30,10)}</div>
+    <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%"></div></div>
+    ${nx?`<div class="rank-next">Prossimo grado: ${nx.name} (${nx.min-ts} stelle mancanti)</div>`:`<div class="rank-next" style="color:var(--gold)">Grado massimo raggiunto!</div>`}
+  </div>
+</div>
+<div class="mhero"><div class="hbadge">${I.shield}<div><h1>Commissariato Digitale</h1><div class="sub">Simulazione Polizia Postale</div></div></div><p class="mdesc">Sei un agente della Polizia Postale. Ascolta i cittadini, indaga, consulta il database normativo e istruisci correttamente la pratica.</p></div>
+<div class="cgrid">${[...CS].sort((a,b)=>(UNLOCK[a.id]||{req:0}).req-(UNLOCK[b.id]||{req:0}).req).map(c=>{const d=dn[c.id],ul=isUnlocked(c.id),u=UNLOCK[c.id]||{req:0,diff:"Base",color:"#4A9A6A"};const cl=d!==undefined?"cbtn dn":ul?"cbtn":"cbtn locked";const sc=d!==undefined?d:-1;const cs=sc>=0?caseStars(sc):0;
+const diffTag=`<span class="diff-tag" style="background:${u.color}">${u.diff}</span>`;
+let info;
+if(sc>=0){info=`<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><span class="bdg" style="background:${sc>=80?'var(--pet)':sc>=50?'var(--amb)':'var(--ros)'}">${sc}%</span><div class="case-stars">${starsRow(cs,3,10)}</div></div>`}
+else if(!ul){const ms=missingStars(c.id);info=`<div class="lock-overlay"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="8" rx="1.5" fill="#999"/><path d="M5 7V5a3 3 0 016 0v2" stroke="#999" stroke-width="1.5" fill="none"/></svg> ${ms} stell${ms===1?'a':'e'} per sbloccare</div>`}
+else{info=''}
+return`<button class="${cl}" ${ul?`onclick="go(${c.id})"`:''}>
+<div style="flex-shrink:0;${ul?'':'opacity:0.4'}">${av(c.av,52)}</div>
+<div style="flex:1"><div class="cn">Caso #${c.id} ${diffTag}</div><div class="ct">${c.title}</div><div class="cs">${c.sub}</div>${info}</div>
+</button>`}).join("")}</div></div>${FOOTER}`}
+function go(id){if(!isUnlocked(id))return;cc=CS.find(c=>c.id===id);ak=[];fs={tipo:[],norm:[],azioni:[]};xc=null;ft="all";show("game");rGame()}
 function rGame(){if(!cc)return;document.getElementById("gameScreen").innerHTML=`
     <div class="gh">
       <div class="gl">
@@ -258,7 +336,8 @@ function rGame(){if(!cc)return;document.getElementById("gameScreen").innerHTML=`
       <div class="cC">
         <div class="agent-strip">
           <img src="post.jpg" alt="Agente">
-          <div class="ag-info"><div class="ag-role">Agente di Polizia Postale</div><div class="ag-name">Istruzione della pratica</div></div>
+          <div class="ag-info"><div class="ag-role">${getRank(totalStars()).name}</div><div class="ag-name">Istruzione della pratica</div></div>
+          <div style="margin-left:auto;display:flex;gap:1px">${starsRow(totalStars(),30,6)}</div>
         </div>
         <div class="cCh">
           <div>${I.fasc}</div>
@@ -280,8 +359,11 @@ function rFl(){const ff=[{k:"all",l:"Tutti"},{k:"tipo",l:"Tipo"},{k:"norm",l:"No
 function sf(f){ft=f;rFl();rA()}
 function rA(){const t=((document.getElementById("sI")||{}).value||"").toLowerCase();const fl=ALL.filter(i=>{const ms=!t||i.title.toLowerCase().includes(t)||i.code.toLowerCase().includes(t)||i.desc.toLowerCase().includes(t);const mf=ft==="all"||i.cat===ft||(ft==="norm"&&(i.cat==="reato"||i.cat==="legge"));return ms&&mf});const g={};fl.forEach(i=>{if(!g[i.cat])g[i.cat]=[];g[i.cat].push(i)});let h="";cO.filter(c=>g[c]).forEach(c=>{h+=`<div style="margin-bottom:12px"><div class="ch">${cI[c]||""} ${cL[c]}</div>`;g[c].forEach(i=>{const ex=xc===i.id;h+=`<div class="ac ${ex?'ex':''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${i.id}')" onclick="tc('${i.id}')" style="border-left:4px solid ${i.color}"><div class="tp"><div style="min-width:0"><span class="dot" style="background:${i.color}"></span><span class="mono" style="font-weight:700;font-size:11px;color:${i.color}">${i.code}</span> <span style="font-size:11.5px">${i.title}</span></div><span class="aw">&#9660;</span></div>${ex?`<div class="dl">${i.desc}</div>`:''}</div>`});h+=`</div>`});if(!fl.length)h=`<div style="text-align:center;padding:20px;color:#bbb;font-size:11px">Nessun risultato</div>`;document.getElementById("aB").innerHTML=h}
 function tc(id){xc=xc===id?null:id;rA()}
-function doClose(){const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(!t||!cc)return;let cor=0,tot=0,det={};["tipo","norm","azioni"].forEach(s=>{const ex=cc.sol[s]||[],pl=fs[s].map(i=>i.id);const h=ex.filter(e=>pl.includes(e)),m=ex.filter(e=>!pl.includes(e)),x=pl.filter(p=>!ex.includes(p));cor+=h.length;tot+=ex.length;det[s]={h,m,x}});const xt=Object.values(det).reduce((a,d)=>a+d.x.length,0);const sc=Math.max(0,Math.round(((tot>0?cor/tot:0)-xt*0.1)*100));dn[cc.id]=sc;rRes(sc,det)}
-function rRes(sc,det){const col=sc>=80?"var(--pet)":sc>=50?"var(--amb)":"var(--ros)";const lb=sc>=80?"Pratica eccellente":sc>=50?"Pratica parzialmente corretta":"Pratica da rivedere";let h=`<div class="rh"><div class="rn" style="color:${col}">${sc}%</div><div class="rl">${lb}</div></div><div class="rb"><div class="rt">${I.fasc} Analisi del caso</div><p>${cc.fb}</p></div>`;["tipo","norm","azioni"].forEach(s=>{const d=det[s],sl=SL.find(x=>x.id===s);h+=`<div class="rb"><div class="rt">${sl.label}</div>`;d.h.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rhi">${I.ok} ${i.code} — ${i.title}</div>`});d.m.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rmi">${I.ko} Mancante: ${i.code} — ${i.title}</div>`});d.x.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rei">${I.wrn} Non pertinente: ${i.code} — ${i.title}</div>`});if(d.h.length===(cc.sol[s]||[]).length&&!d.x.length)h+=`<div class="rok">Perfetto!</div>`;h+=`</div>`});h+=`<div class="rbt"><button class="bry" onclick="go(${cc.id})">Riprova</button><button class="bmn" onclick="showMenu()">Torna ai casi</button><button class="bry" onclick="goHome()" style="flex:0.6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#2C3E6B" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div>`;document.getElementById("resultScreen").innerHTML=`<div class="rw">${h}</div>${FOOTER}`;show("result")}
+function doClose(){const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(!t||!cc)return;const oldRank=getRank(totalStars());let cor=0,tot=0,det={};["tipo","norm","azioni"].forEach(s=>{const ex=cc.sol[s]||[],pl=fs[s].map(i=>i.id);const h=ex.filter(e=>pl.includes(e)),m=ex.filter(e=>!pl.includes(e)),x=pl.filter(p=>!ex.includes(p));cor+=h.length;tot+=ex.length;det[s]={h,m,x}});const xt=Object.values(det).reduce((a,d)=>a+d.x.length,0);const sc=Math.max(0,Math.round(((tot>0?cor/tot:0)-xt*0.1)*100));dn[cc.id]=sc;const newRank=getRank(totalStars());const promoted=newRank.min>oldRank.min;rRes(sc,det,promoted,newRank)}
+function rRes(sc,det,promoted,newRank){const col=sc>=80?"var(--pet)":sc>=50?"var(--amb)":"var(--ros)";const lb=sc>=80?"Pratica eccellente":sc>=50?"Pratica parzialmente corretta":"Pratica da rivedere";const earned=caseStars(sc);
+let h=`<div class="rh"><div class="rn" style="color:${col}">${sc}%</div><div class="rl">${lb}</div><div style="margin-top:8px;display:flex;justify-content:center;gap:4px">${starsRow(earned,3,18)}</div><div style="font-size:11px;color:var(--gri);margin-top:4px">${earned===3?'Eccellente! 3 stelle!':earned===2?'Ottimo! 2 stelle guadagnate':earned===1?'1 stella guadagnata':'Nessuna stella questa volta'}</div></div>`;
+if(promoted){h+=`<div class="promo-box"><div class="promo-label">Promozione!</div><div class="promo-rank">${newRank.name}</div><div style="font-size:11px;color:var(--gri);margin-top:2px">Hai raggiunto un nuovo grado</div><div class="promo-stars">${starsRow(totalStars(),30,8)}</div></div>`}
+h+=`<div class="rb"><div class="rt">${I.fasc} Analisi del caso</div><p>${cc.fb}</p></div>`;["tipo","norm","azioni"].forEach(s=>{const d=det[s],sl=SL.find(x=>x.id===s);h+=`<div class="rb"><div class="rt">${sl.label}</div>`;d.h.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rhi">${I.ok} ${i.code} — ${i.title}</div>`});d.m.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rmi">${I.ko} Mancante: ${i.code} — ${i.title}</div>`});d.x.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rei">${I.wrn} Non pertinente: ${i.code} — ${i.title}</div>`});if(d.h.length===(cc.sol[s]||[]).length&&!d.x.length)h+=`<div class="rok">Perfetto!</div>`;h+=`</div>`});h+=`<div class="rbt"><button class="bry" onclick="go(${cc.id})">Riprova</button><button class="bmn" onclick="showMenu()">Torna ai casi</button><button class="bry" onclick="goHome()" style="flex:0.6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#2C3E6B" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div>`;document.getElementById("resultScreen").innerHTML=`<div class="rw">${h}</div>${FOOTER}`;show("result")}
 function enterApp(){const sp=document.getElementById("splashScreen");sp.classList.add("out");setTimeout(()=>{sp.style.display="none";showMenu()},600)}
 // INIT: show splash, hide others
 document.getElementById("menuScreen").style.display="none";
