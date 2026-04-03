@@ -31,6 +31,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 .splash-cta{position:absolute;bottom:16px;left:0;right:0;text-align:center;animation:pulse 2s ease-in-out infinite}
 .splash-cta span{display:inline-flex;align-items:center;gap:8px;background:rgba(26,39,68,0.85);backdrop-filter:blur(8px);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 24px;border-radius:30px;letter-spacing:0.5px;border:1px solid rgba(212,168,67,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
 .splash-cta svg{opacity:0.7}
+/* INFO MODAL */
+#infoModal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(10,22,40,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+#infoModal.show{display:flex}
+.info-box{background:var(--paper);border-radius:16px;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,0.4);animation:slideIn 0.3s ease-out;overflow:hidden}
+.info-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--griL);background:linear-gradient(135deg,rgba(44,62,107,0.06),transparent)}
+.info-header h2{font-size:16px;font-weight:800;color:var(--blu);display:flex;align-items:center;gap:8px}
+.info-close{background:none;border:none;cursor:pointer;color:var(--gri);font-size:22px;padding:0 4px;line-height:1;transition:color 0.15s}
+.info-close:hover{color:var(--ros)}
+.info-tabs{display:flex;border-bottom:1px solid var(--griL);background:#fff}
+.info-tab{flex:1;padding:10px 8px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--gri);border:none;background:none;border-bottom:3px solid transparent;transition:all 0.15s}
+.info-tab:hover{color:var(--blu)}
+.info-tab.active{color:var(--blu);border-bottom-color:var(--gold)}
+.info-tab svg{display:block;margin:0 auto 4px}
+.info-body{flex:1;overflow:auto;padding:18px 20px}
+.info-body h3{font-size:14px;font-weight:700;color:var(--blu);margin:0 0 8px}
+.info-body p{font-size:12.5px;color:#555;line-height:1.75;margin-bottom:10px}
+.info-body .info-highlight{background:linear-gradient(135deg,rgba(27,138,122,0.08),rgba(27,138,122,0.03));border-left:3px solid var(--pet);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:12px;line-height:1.7;color:#444}
+.info-body .info-steps{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.info-step{display:flex;gap:10px;align-items:flex-start}
+.info-step .step-n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--blu);color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+.info-step .step-t{font-size:12px;color:#444;line-height:1.6}
+.splash-info-btn{position:absolute;top:16px;right:16px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:24px;color:#fff;padding:8px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.3px;transition:all 0.2s;z-index:10}
+.splash-info-btn:hover{background:rgba(255,255,255,0.22);box-shadow:0 2px 12px rgba(0,0,0,0.2)}
 .home-btn{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--bluD),var(--blu));border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;padding:5px 12px;cursor:pointer;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all 0.15s;text-decoration:none}
 .home-btn:hover{box-shadow:0 2px 12px rgba(26,39,68,0.3);transform:translateY(-1px)}
 .home-btn svg{opacity:0.7}
@@ -158,6 +181,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 </head>
 <body>
 <div id="splashScreen" onclick="enterApp()">
+  <button class="splash-info-btn" onclick="event.stopPropagation();openInfo()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#fff" stroke-width="1.3"/><path d="M8 7v4.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="4.8" r="0.9" fill="#fff"/></svg>
+    Info
+  </button>
   <img src="stazione.jpg" alt="Commissariato Digitale — Guida ai Pericoli Digitali">
   <div class="splash-cta">
     <span>
@@ -166,6 +193,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
     </span>
   </div>
 </div>
+
+<!-- INFO MODAL -->
+<div id="infoModal">
+  <div class="info-box">
+    <div class="info-header">
+      <h2>
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2C3E6B" stroke-width="1.3"/><path d="M8 7v4.5" stroke="#2C3E6B" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="4.8" r="0.9" fill="#2C3E6B"/></svg>
+        Commissariato Digitale
+      </h2>
+      <button class="info-close" onclick="closeInfo()">&times;</button>
+    </div>
+    <div class="info-tabs">
+      <button class="info-tab active" onclick="switchTab(0,this)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="4" fill="#4A6FA5"/><path d="M3 18c0-4 3.5-7 7-7s7 3 7 7" fill="#4A6FA5" opacity="0.3"/></svg>
+        Studente
+      </button>
+      <button class="info-tab" onclick="switchTab(1,this)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="11" rx="2" fill="#2D7A5F"/><path d="M7 17h6" stroke="#2D7A5F" stroke-width="1.5" stroke-linecap="round"/><path d="M10 14v3" stroke="#2D7A5F" stroke-width="1.5"/></svg>
+        Docente
+      </button>
+      <button class="info-tab" onclick="switchTab(2,this)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 6v4c0 5 3 9.5 7 10.5 4-1 7-5.5 7-10.5V6L10 2z" fill="#2C3E6B"/><circle cx="10" cy="9" r="2.5" fill="#D4A843"/><path d="M8 12.5h4l.5 2h-5l.5-2z" fill="#D4A843"/></svg>
+        Agente P.P.
+      </button>
+    </div>
+    <div class="info-body" id="infoContent"></div>
+  </div>
+</div>
+
 <div id="menuScreen"></div>
 <div id="gameScreen"></div>
 <div id="resultScreen"></div>
@@ -177,6 +233,56 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['s','S','c',
 console.log('%c© Andrea Cerioli 2026 — Scuola Sacra Famiglia','color:#1B8A7A;font-weight:bold;font-size:13px;');
 
 const FOOTER=`<footer class="site-footer">Cittadinanza Digitale — Scuola Sacra Famiglia — Andrea Cerioli &copy; 2026</footer>`;
+
+const INFO_TABS=[
+`<h3>Ciao, futuro agente!</h3>
+<p>In questo gioco diventi un vero agente della Polizia Postale. Al tuo sportello arrivano persone con problemi reali: qualcuno a cui hanno rubato l'account, una mamma preoccupata per la figlia, un signore truffato online.</p>
+<p>Il tuo compito? Capire cosa è successo e costruire la pratica giusta.</p>
+<div class="info-steps">
+  <div class="info-step"><span class="step-n">1</span><span class="step-t"><strong>Ascolta il cittadino</strong> — Leggi cosa ti racconta e fagli le domande giuste per capire bene il caso.</span></div>
+  <div class="info-step"><span class="step-n">2</span><span class="step-t"><strong>Cerca nell'archivio</strong> — A destra trovi le leggi e le procedure. Cerca quella giusta per il caso che hai davanti.</span></div>
+  <div class="info-step"><span class="step-n">3</span><span class="step-t"><strong>Costruisci il fascicolo</strong> — Trascina le leggi e le azioni giuste nella zona centrale. Nell'ordine: che tipo di segnalazione è? Quale legge si applica? Cosa deve fare la polizia?</span></div>
+  <div class="info-step"><span class="step-n">4</span><span class="step-t"><strong>Chiudi la pratica</strong> — Quando hai finito, clicca "Chiudi pratica" e scopri come sei andato.</span></div>
+</div>
+<div class="info-highlight">
+  <strong>Attenzione:</strong> non tutti i casi sono uguali! Alcuni non sono nemmeno dei reati. Sta a te capire la differenza. Parti dai casi Base e guadagna stelle per sbloccare quelli più difficili. Ogni caso risolto bene ti fa salire di grado: da Agente fino a Questore!
+</div>`,
+
+`<h3>Informazioni per il docente</h3>
+<p>Commissariato Digitale è una simulazione didattica che ribalta la prospettiva tradizionale dell'educazione alla cittadinanza digitale: invece di subire gli attacchi (come nelle escape room), lo studente diventa l'autorità che deve classificare, istruire e decidere.</p>
+<div class="info-highlight">
+  <strong>Obiettivo didattico:</strong> sviluppare il pensiero procedurale e giuridico attraverso un gioco di ruolo realistico. Lo studente impara a cercare, selezionare e applicare normativa reale — non a memorizzarla.
+</div>
+<h3>Struttura</h3>
+<p>10 casi di cybercrime reale, calibrati per difficoltà crescente (da Base a Esperto), con sistema di sblocco progressivo basato sulle stelle guadagnate. I casi coprono: furto d'identità, phishing, sextortion, revenge porn, cyberbullismo, stalking, truffa, adescamento, SIM swapping, e un caso-trappola (smarrimento telefono: non è un reato).</p>
+<h3>Competenze attivate</h3>
+<p>Comprensione del testo (ascolto del cittadino), ricerca in un database (archivio normativo), classificazione (tipo di segnalazione), sequenziamento logico (ordine delle procedure), distinzione tra reato e non-reato, consapevolezza della tutela dei minori.</p>
+<h3>Valutazione</h3>
+<p>Il sistema valuta automaticamente: completezza (elementi mancanti), correttezza (normativa giusta), precisione (penalità per elementi non pertinenti). Il punteggio è trasparente e la correzione dettagliata mostra cosa mancava e perché. Il sistema di gradi (da Agente a Questore) funziona come valutazione formativa continuativa.</p>
+<div class="info-highlight">
+  <strong>Contesto:</strong> percorso di Cittadinanza Digitale "Crescere cittadini digitali" — Scuola Sacra Famiglia, Orzinuovi (BS). Progettato per la secondaria di primo grado (11-14 anni), adattabile alla primaria (classi 4a-5a) con guida del docente.
+</div>`,
+
+`<h3>Nota per gli operatori di Polizia</h3>
+<p>Questa applicazione è uno strumento didattico destinato a studenti della scuola secondaria di primo grado, realizzato nell'ambito di un percorso scolastico di educazione alla cittadinanza digitale.</p>
+<p>Il suo scopo è avvicinare i ragazzi alla comprensione delle procedure e della normativa che regolano l'attività della Polizia Postale e delle Comunicazioni, favorendo consapevolezza e rispetto per il lavoro delle Forze dell'Ordine.</p>
+<div class="info-highlight">
+  <strong>Precisazione:</strong> i casi, le procedure e i riferimenti normativi sono stati semplificati a fini didattici per un pubblico di 11-14 anni. Non costituiscono una rappresentazione esaustiva né operativamente accurata delle reali procedure della Polizia Postale. Le fattispecie di reato e gli articoli del Codice Penale citati sono reali, ma il flusso procedurale è adattato al contesto educativo.
+</div>
+<h3>Riferimenti normativi utilizzati</h3>
+<p>Codice Penale: artt. 494, 595, 600-ter, 609-undecies, 612-bis, 612-ter, 615-ter, 629, 635-bis, 640, 640-ter. Legge 29 maggio 2017, n. 71 (Disposizioni a tutela dei minori per la prevenzione e il contrasto del cyberbullismo). D.Lgs. 196/2003, art. 167 (Trattamento illecito di dati personali).</p>
+<h3>Finalità educativa</h3>
+<p>Lo studente non impara a "fare l'agente" ma a comprendere che dietro ogni crimine informatico esiste un percorso istituzionale strutturato di tutela del cittadino, che le Forze dell'Ordine operano secondo protocolli precisi, e che la collaborazione tra cittadino e autorità è fondamentale per la sicurezza digitale.</p>
+<div class="info-highlight">
+  Progetto "Crescere cittadini digitali" — Scuola Sacra Famiglia, Orzinuovi (BS)<br>
+  Per segnalazioni o collaborazioni: il referente è l'Animatore Digitale dell'istituto.
+</div>`
+];
+
+function openInfo(){document.getElementById("infoModal").classList.add("show");switchTab(0,document.querySelector(".info-tab"))}
+function closeInfo(){document.getElementById("infoModal").classList.remove("show")}
+function switchTab(n,el){document.querySelectorAll(".info-tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");document.getElementById("infoContent").innerHTML=INFO_TABS[n]}
+document.getElementById("infoModal").addEventListener("click",function(e){if(e.target===this)closeInfo()});
 
 const I={
   shield:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="gs" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#2C3E6B"/><stop offset="100%" stop-color="#4A6FA5"/></linearGradient></defs><path d="M18 3L5 9v9c0 8.3 5.5 16 13 18 7.5-2 13-9.7 13-18V9L18 3z" fill="url(#gs)"/><circle cx="18" cy="17" r="4" fill="#D4A843"/><path d="M14 22h8l1 4H13l1-4z" fill="#D4A843"/></svg>`,
