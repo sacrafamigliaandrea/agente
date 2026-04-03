@@ -1,21 +1,15 @@
 <!DOCTYPE html>
 <!--
   Commissariato Digitale — Simulazione Polizia Postale
-  Percorso di Cittadinanza Digitale — "Crescere cittadini digitali"
-  
-  Progetto della Prof.ssa Luciana Ferraboschi
-  Realizzazione del Prof. Andrea Cerioli — Animatore Digitale
-  Scuola Sacra Famiglia, Orzinuovi (BS)
-  
-  Tutti i diritti riservati © 2026
-  Vietata la riproduzione anche parziale senza autorizzazione.
+  Cittadinanza Digitale — Scuola Sacra Famiglia, Orzinuovi (BS)
+  Andrea Cerioli © 2026
 -->
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="author" content="Prof.ssa Luciana Ferraboschi, Prof. Andrea Cerioli — Sacra Famiglia Orzinuovi">
-<meta name="copyright" content="© 2026 Andrea Cerioli — Tutti i diritti riservati">
+<meta name="author" content="Andrea Cerioli — Scuola Sacra Famiglia, Orzinuovi">
+<meta name="copyright" content="© 2026 Andrea Cerioli">
 <meta name="description" content="Simulazione interattiva: lo studente veste i panni di un agente della Polizia Postale e istruisce pratiche reali di cybercrime. Percorso Crescere cittadini digitali.">
 <title>Commissariato Digitale — Simulazione Polizia Postale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,13 +131,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 .rbt button{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .bry{background:#fff;border:2px solid var(--blu);color:var(--blu)}.bry:hover{background:rgba(44,62,107,0.04)}
 .bmn{background:linear-gradient(135deg,var(--blu),var(--bluL));border:none;color:#fff}.bmn:hover{box-shadow:0 4px 16px rgba(44,62,107,0.25)}
-.site-footer{background:linear-gradient(135deg,var(--bluD),#111);color:rgba(255,255,255,0.5);padding:14px 20px;text-align:center;font-size:10px;line-height:1.7;letter-spacing:0.2px}
-.site-footer a{color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.15s}
-.site-footer a:hover{color:var(--gold)}
-.site-footer .ft-proj{color:rgba(255,255,255,0.6);font-weight:600;margin-bottom:2px}
-.site-footer .ft-copy{opacity:0.5;font-size:9px}
-.site-footer .ft-links{margin-top:4px}
-.site-footer .ft-links a{margin:0 6px}
+.site-footer{background:linear-gradient(135deg,var(--bluD),#111);color:rgba(255,255,255,0.4);padding:10px 20px;text-align:center;font-size:10px;letter-spacing:0.3px}
 </style>
 </head>
 <body>
@@ -164,15 +152,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 // Scuola Sacra Famiglia, Orzinuovi (BS)
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['s','S','c','C','u','U','p','P'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault()});
-console.log('%c© Andrea Cerioli 2026 — Tutti i diritti riservati.\nScuola Sacra Famiglia, Orzinuovi (BS)\nPercorso "Crescere cittadini digitali"\nVietata la riproduzione anche parziale.','color:#1B8A7A;font-weight:bold;font-size:13px;');
+console.log('%c© Andrea Cerioli 2026 — Scuola Sacra Famiglia','color:#1B8A7A;font-weight:bold;font-size:13px;');
 
-const FOOTER=`<footer class="site-footer">
-<div class="ft-proj">Crescere cittadini digitali — Percorso di Cittadinanza Digitale</div>
-Progetto della Prof.ssa Luciana Ferraboschi — Realizzazione del Prof. Andrea Cerioli<br>
-Sacra Famiglia, Orzinuovi (BS) — Tutti i diritti riservati &copy; 2026
-<div class="ft-links"><a href="https://genitori.neocities.org/" target="_blank">La Guida</a><a href="https://cyberescape.neocities.org/" target="_blank">CyberEscape</a><a href="https://pattodigitale.neocities.org/" target="_blank">Patto Digitale</a></div>
-<div class="ft-copy">Vietata la riproduzione anche parziale senza autorizzazione.</div>
-</footer>`;
+const FOOTER=`<footer class="site-footer">Cittadinanza Digitale — Scuola Sacra Famiglia — Andrea Cerioli &copy; 2026</footer>`;
 
 const I={
   shield:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="gs" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#2C3E6B"/><stop offset="100%" stop-color="#4A6FA5"/></linearGradient></defs><path d="M18 3L5 9v9c0 8.3 5.5 16 13 18 7.5-2 13-9.7 13-18V9L18 3z" fill="url(#gs)"/><circle cx="18" cy="17" r="4" fill="#D4A843"/><path d="M14 22h8l1 4H13l1-4z" fill="#D4A843"/></svg>`,
