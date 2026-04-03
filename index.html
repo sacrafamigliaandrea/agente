@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Commissariato Digitale — Simulazione Polizia Postale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blu:#2C3E6B;--bluD:#1A2744;--bluL:#4A6FA5;--pet:#1B8A7A;--petL:#22B09A;--petD:#14665A;--gold:#D4A843;--goldL:#F0CC6B;--amb:#E8A820;--vrd:#2D7A5F;--vio:#6B4D8A;--ros:#B03030;--gri:#7A8494;--griL:#E4E2DC;--bg:#ECEAE4;--paper:#FAFAF7;--card:#fff}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#c0bdb6;border-radius:3px}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+.mono{font-family:'JetBrains Mono',monospace}
+#splashScreen{position:fixed;inset:0;z-index:9999;cursor:pointer;background:#0a1628;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease-out}
+#splashScreen.out{opacity:0;pointer-events:none}
+#splashScreen img{max-width:100%;max-height:calc(100vh - 60px);object-fit:contain;border-radius:0;display:block}
+.splash-cta{position:absolute;bottom:16px;left:0;right:0;text-align:center;animation:pulse 2s ease-in-out infinite}
+.splash-cta span{display:inline-flex;align-items:center;gap:8px;background:rgba(26,39,68,0.85);backdrop-filter:blur(8px);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 24px;border-radius:30px;letter-spacing:0.5px;border:1px solid rgba(212,168,67,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.splash-cta svg{opacity:0.7}
+#menuScreen{min-height:100vh;overflow:auto;padding:24px}
+.mw{max-width:920px;margin:0 auto}
+.mhero{text-align:center;margin-bottom:32px}
+.hbadge{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--bluD),var(--blu));padding:16px 28px;border-radius:16px;box-shadow:0 8px 32px rgba(26,39,68,0.25)}
+.hbadge h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.2}
+.hbadge .sub{font-size:10px;color:var(--gold);font-weight:600;letter-spacing:2.5px;text-transform:uppercase}
+.mdesc{font-size:13px;color:#666;max-width:540px;margin:14px auto 0;line-height:1.65}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.cbtn{background:var(--paper);border:2px solid transparent;border-radius:12px;padding:14px;text-align:left;cursor:pointer;display:flex;align-items:flex-start;gap:12px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.cbtn:hover{border-color:var(--blu);box-shadow:0 4px 16px rgba(44,62,107,0.1);transform:translateY(-1px)}
+.cbtn.dn{border-color:var(--pet)}
+.cbtn .cn{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.cbtn .ct{font-size:13px;font-weight:700;color:var(--blu);margin-bottom:1px}
+.cbtn .cs{font-size:11px;color:#777}
+.bdg{font-size:10px;font-weight:700;color:#fff;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:4px}
+#gameScreen{height:100vh;display:none;flex-direction:column;overflow:hidden}
+.gh{background:linear-gradient(135deg,var(--bluD),var(--blu));color:#fff;padding:6px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.gh .gl{display:flex;align-items:center;gap:8px}
+.bbk{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.bbk:hover{background:rgba(255,255,255,0.22)}
+.gh .ls{font-size:13px;font-weight:700;letter-spacing:-0.3px;display:flex;align-items:center;gap:4px}
+.cpill{font-size:11px;font-weight:600;background:rgba(255,255,255,0.1);padding:4px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1)}
+.cbx{border:none;border-radius:8px;color:#fff;padding:6px 16px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.cbx.on{background:linear-gradient(135deg,var(--pet),var(--petL));cursor:pointer;box-shadow:0 2px 12px rgba(27,138,122,0.3)}
+.cbx.on:hover{box-shadow:0 4px 20px rgba(27,138,122,0.4);transform:translateY(-1px)}
+.cbx.off{background:rgba(255,255,255,0.08);cursor:default;opacity:0.4}
+.cols{flex:1;display:flex;overflow:hidden}
+.cL{width:30%;border-right:1px solid var(--griL);display:flex;flex-direction:column;background:var(--paper)}
+.cLh{padding:10px 12px;border-bottom:1px solid var(--griL);background:linear-gradient(180deg,rgba(44,62,107,0.04),transparent);display:flex;align-items:center;gap:10px}
+.cLh .lb{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.cLh .nm{font-size:12px;font-weight:700;color:var(--blu)}
+.cLb{flex:1;overflow:auto;padding:10px 12px}
+.bc{background:#fff;border-radius:12px 12px 12px 3px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);animation:fadeIn 0.3s;border:1px solid rgba(0,0,0,0.04)}
+.bc p{font-size:12px;line-height:1.7;color:#444;font-style:italic}
+.ba{background:linear-gradient(135deg,var(--blu),var(--bluL));color:#fff;border-radius:12px 12px 3px 12px;padding:7px 11px;margin-bottom:3px;margin-left:20px;font-size:11px;font-weight:500;box-shadow:0 2px 8px rgba(44,62,107,0.2)}
+.ql{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.qb{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;border:1px solid var(--griL);border-radius:8px;padding:8px 10px;margin-bottom:4px;font-size:11.5px;color:var(--blu);font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.qb:hover{background:rgba(44,62,107,0.04);border-color:var(--bluL);box-shadow:0 2px 8px rgba(44,62,107,0.08)}
+.qb svg{flex-shrink:0}
+.cC{width:35%;display:flex;flex-direction:column;background:linear-gradient(180deg,#FDFCFA,#F5F3ED)}
+.cCh{padding:10px 12px;border-bottom:1px solid var(--griL);display:flex;align-items:center;gap:8px}
+.cCh .lb{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.cCh .tt{font-size:13px;font-weight:700;color:var(--blu)}
+.cCb{flex:1;overflow:auto;padding:10px 12px}
+.sl{border-radius:10px;padding:10px 12px;margin-bottom:8px;transition:all 0.15s;min-height:52px}
+.sl.e{border:2px dashed #ccc;background:rgba(255,255,255,0.4)}
+.sl.f{border:2px solid var(--pet);background:rgba(27,138,122,0.03)}
+.sl.dv{background:rgba(27,138,122,0.08);border-color:var(--petL)}
+.sl .sh{display:flex;align-items:center;gap:8px}
+.sn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#fff;font-size:10px;font-weight:700}
+.sn.y{background:linear-gradient(135deg,var(--pet),var(--petL))}.sn.n{background:#ccc}
+.sll{font-size:12px;font-weight:600}.sll.y{color:var(--petD)}.sll.n{color:#999}
+.sht{font-size:10px;color:#bbb;text-align:center;padding:4px 0;display:flex;align-items:center;justify-content:center;gap:4px}
+.dp{display:flex;align-items:center;gap:6px;background:#fff;border-radius:6px;padding:5px 8px;margin-bottom:3px;animation:slideIn 0.2s ease-out;border:1px solid rgba(0,0,0,0.06);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.dp .cd{font-weight:700;font-size:10px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.dp .dt{font-size:11px;flex:1}.dp .rm{background:none;border:none;cursor:pointer;color:#bbb;font-size:15px;padding:0;line-height:1;transition:color 0.15s}
+.dp .rm:hover{color:var(--ros)}
+.fc{text-align:center;margin-top:6px;font-size:10px;color:var(--gri)}
+.cR{width:35%;border-left:1px solid var(--griL);display:flex;flex-direction:column;background:var(--paper)}
+.cRh{padding:10px 12px;border-bottom:1px solid var(--griL)}
+.cRh .lb{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:4px}
+.cRh .tt{font-size:13px;font-weight:700;color:var(--blu);margin-bottom:6px}
+.sw{position:relative;margin-bottom:6px}.sw svg{position:absolute;left:9px;top:50%;transform:translateY(-50%)}
+.si{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--griL);border-radius:8px;font-size:11.5px;outline:none;background:#fff;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.si:focus{border-color:var(--bluL);box-shadow:0 0 0 3px rgba(74,111,165,0.1)}
+.fls{display:flex;gap:3px;flex-wrap:wrap}
+.fb{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid #ddd;background:#fff;color:#777;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.fb:hover{border-color:var(--bluL)}.fb.on{border-color:var(--blu);background:var(--blu);color:#fff}
+.cRb{flex:1;overflow:auto;padding:8px 10px}
+.ch{font-size:9px;font-weight:700;color:var(--gri);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.ch svg{opacity:0.5}
+.ac{background:#fff;border-radius:8px;padding:8px 10px;margin-bottom:5px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.15s;user-select:none;border:1px solid rgba(0,0,0,0.04)}
+.ac:hover{box-shadow:0 3px 12px rgba(0,0,0,0.08);transform:translateY(-1px)}
+.ac.ex{box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.ac .tp{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.ac .aw{font-size:8px;color:#bbb;transition:transform 0.2s;flex-shrink:0}.ac.ex .aw{transform:rotate(180deg)}
+.ac .dl{font-size:11px;color:#666;margin-top:6px;line-height:1.55;border-top:1px solid #f0f0ec;padding-top:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;flex-shrink:0;margin-right:2px}
+#resultScreen{min-height:100vh;overflow:auto;padding:24px;display:none}
+.rw{max-width:660px;margin:0 auto}
+.rh{text-align:center;margin-bottom:24px;padding:24px;background:var(--paper);border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.rh .rn{font-size:60px;font-weight:800;line-height:1}.rh .rl{font-size:16px;font-weight:600;color:var(--blu);margin-top:4px}
+.rb{background:var(--paper);border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.04)}
+.rb .rt{font-size:12px;font-weight:700;color:var(--blu);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.rb p{font-size:12.5px;color:#555;line-height:1.7}
+.rhi{font-size:11.5px;color:var(--pet);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.rmi{font-size:11.5px;color:var(--ros);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.rei{font-size:11.5px;color:var(--amb);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.rok{font-size:11px;color:var(--pet);font-weight:700;margin-top:2px}
+.rbt{display:flex;gap:8px;margin-top:20px}
+.rbt button{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.bry{background:#fff;border:2px solid var(--blu);color:var(--blu)}.bry:hover{background:rgba(44,62,107,0.04)}
+.bmn{background:linear-gradient(135deg,var(--blu),var(--bluL));border:none;color:#fff}.bmn:hover{box-shadow:0 4px 16px rgba(44,62,107,0.25)}
+</style>
+</head>
+<body>
+<div id="splashScreen" onclick="enterApp()">
+  <img src="stazione.jpg" alt="Commissariato Digitale — Guida ai Pericoli Digitali">
+  <div class="splash-cta">
+    <span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8l7 7 7-7" stroke="#D4A843" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Clicca per entrare nel Commissariato Digitale
+    </span>
+  </div>
+</div>
+<div id="menuScreen"></div>
+<div id="gameScreen"></div>
+<div id="resultScreen"></div>
+<script>
+const I={
+  shield:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><defs><linearGradient id="gs" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#2C3E6B"/><stop offset="100%" stop-color="#4A6FA5"/></linearGradient></defs><path d="M18 3L5 9v9c0 8.3 5.5 16 13 18 7.5-2 13-9.7 13-18V9L18 3z" fill="url(#gs)"/><circle cx="18" cy="17" r="4" fill="#D4A843"/><path d="M14 22h8l1 4H13l1-4z" fill="#D4A843"/></svg>`,
+  shSm:`<svg width="18" height="18" viewBox="0 0 36 36" fill="none"><path d="M18 3L5 9v9c0 8.3 5.5 16 13 18 7.5-2 13-9.7 13-18V9L18 3z" fill="#fff" opacity="0.2"/><circle cx="18" cy="17" r="3" fill="#D4A843"/><path d="M15 21h6l.6 2.5H14.4l.6-2.5z" fill="#D4A843"/></svg>`,
+  fasc:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  srch:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#999" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="#999" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  arch:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 6v7a1 1 0 001 1h10a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.3"/><rect x="6" y="8" width="4" height="2" rx=".5" fill="currentColor" opacity="0.4"/></svg>`,
+  drag:`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="4" cy="3" r="1" fill="#bbb"/><circle cx="8" cy="3" r="1" fill="#bbb"/><circle cx="4" cy="6" r="1" fill="#bbb"/><circle cx="8" cy="6" r="1" fill="#bbb"/><circle cx="4" cy="9" r="1" fill="#bbb"/><circle cx="8" cy="9" r="1" fill="#bbb"/></svg>`,
+  ask:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#4A6FA5" stroke-width="1.3"/><path d="M6 6.5a2 2 0 013.5 1.5c0 1-1.5 1.2-1.5 2" stroke="#4A6FA5" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="12" r=".8" fill="#4A6FA5"/></svg>`,
+  ok:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#1B8A7A"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  ko:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#B03030"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  wrn:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L1 14h14L8 1.5z" fill="#E8A820"/><path d="M8 6v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12" r=".8" fill="#fff"/></svg>`,
+};
+function av(t,s){
+  s=s||56;const r=s/2;
+  const df=`<defs><linearGradient id="bg${s}" x1="0" y1="0" x2="${s}" y2="${s}"><stop offset="0%" stop-color="#D4F5E0"/><stop offset="100%" stop-color="#8FD4B4"/></linearGradient><linearGradient id="sk${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FBDBB5"/><stop offset="100%" stop-color="#E0A870"/></linearGradient><linearGradient id="uf${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B4F7A"/><stop offset="100%" stop-color="#2A3A5C"/></linearGradient><linearGradient id="h1${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5A3825"/><stop offset="100%" stop-color="#3D2415"/></linearGradient><linearGradient id="h2${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2C1A0E"/><stop offset="100%" stop-color="#1A0F06"/></linearGradient><linearGradient id="pk${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#E88AAA"/><stop offset="100%" stop-color="#D06080"/></linearGradient><linearGradient id="gn${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A9A6A"/><stop offset="100%" stop-color="#357A50"/></linearGradient><linearGradient id="bl${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A90D9"/><stop offset="100%" stop-color="#357ABD"/></linearGradient><linearGradient id="dk${s}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#2A2A2A"/></linearGradient></defs>`;
+  const bg=`<circle cx="${r}" cy="${r}" r="${r}" fill="url(#bg${s})"/>`;
+  const p=(x)=>Math.round(s*x);
+  const faces={
+    wc:`${bg}<circle cx="${p(.38)}" cy="${p(.38)}" r="${p(.16)}" fill="url(#sk${s})"/><path d="M${p(.22)} ${p(.28)}Q${p(.3)} ${p(.14)} ${p(.38)} ${p(.16)}Q${p(.46)} ${p(.14)} ${p(.54)} ${p(.28)}Q${p(.52)} ${p(.34)} ${p(.46)} ${p(.34)}Q${p(.4)} ${p(.22)} ${p(.3)} ${p(.34)}Q${p(.22)} ${p(.34)} ${p(.22)} ${p(.28)}Z" fill="url(#h1${s})"/><ellipse cx="${p(.34)}" cy="${p(.38)}" rx="${p(.015)}" ry="${p(.018)}" fill="#555"/><ellipse cx="${p(.42)}" cy="${p(.38)}" rx="${p(.015)}" ry="${p(.018)}" fill="#555"/><rect x="${p(.26)}" y="${p(.54)}" width="${p(.24)}" height="${p(.3)}" rx="${p(.04)}" fill="url(#uf${s})"/><circle cx="${p(.38)}" cy="${p(.59)}" r="${p(.015)}" fill="#D4A843"/><circle cx="${p(.66)}" cy="${p(.46)}" r="${p(.11)}" fill="url(#sk${s})"/><path d="M${p(.57)} ${p(.38)}Q${p(.62)} ${p(.3)} ${p(.66)} ${p(.32)}Q${p(.72)} ${p(.3)} ${p(.75)} ${p(.38)}Q${p(.74)} ${p(.42)} ${p(.7)} ${p(.42)}Q${p(.66)} ${p(.34)} ${p(.6)} ${p(.42)}Z" fill="url(#h1${s})"/><ellipse cx="${p(.63)}" cy="${p(.46)}" rx="${p(.012)}" ry="${p(.015)}" fill="#555"/><ellipse cx="${p(.69)}" cy="${p(.46)}" rx="${p(.012)}" ry="${p(.015)}" fill="#555"/><rect x="${p(.57)}" y="${p(.57)}" width="${p(.18)}" height="${p(.26)}" rx="${p(.03)}" fill="url(#pk${s})"/>`,
+    om:`${bg}<circle cx="${r}" cy="${p(.36)}" r="${p(.18)}" fill="url(#sk${s})"/><path d="M${p(.32)} ${p(.26)}Q${r} ${p(.12)} ${p(.68)} ${p(.26)}" stroke="#C0C0C0" stroke-width="${p(.05)}" fill="none" stroke-linecap="round"/><ellipse cx="${p(.43)}" cy="${p(.36)}" rx="${p(.018)}" ry="${p(.02)}" fill="#555"/><ellipse cx="${p(.57)}" cy="${p(.36)}" rx="${p(.018)}" ry="${p(.02)}" fill="#555"/><rect x="${p(.38)}" y="${p(.34)}" width="${p(.1)}" height="${p(.055)}" rx="${p(.02)}" fill="none" stroke="#aaa" stroke-width="1.2"/><rect x="${p(.52)}" y="${p(.34)}" width="${p(.1)}" height="${p(.055)}" rx="${p(.02)}" fill="none" stroke="#aaa" stroke-width="1.2"/><path d="M${p(.47)} ${p(.34)}L${p(.53)} ${p(.34)}" stroke="#aaa" stroke-width="1"/><rect x="${p(.34)}" y="${p(.54)}" width="${p(.32)}" height="${p(.32)}" rx="${p(.04)}" fill="url(#dk${s})"/><path d="M${r} ${p(.54)}v${p(.12)}" stroke="#666" stroke-width="1"/>`,
+    tb:`${bg}<circle cx="${r}" cy="${p(.36)}" r="${p(.16)}" fill="url(#sk${s})"/><rect x="${p(.34)}" y="${p(.2)}" width="${p(.32)}" height="${p(.12)}" rx="${p(.04)}" fill="url(#h2${s})"/><ellipse cx="${p(.44)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#333"/><ellipse cx="${p(.56)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#333"/><path d="M${p(.46)} ${p(.41)}Q${r} ${p(.44)} ${p(.54)} ${p(.41)}" stroke="#C07060" stroke-width="1" fill="none"/><rect x="${p(.32)}" y="${p(.52)}" width="${p(.36)}" height="${p(.32)}" rx="${p(.04)}" fill="url(#gn${s})"/>`,
+    w:`${bg}<circle cx="${r}" cy="${p(.36)}" r="${p(.17)}" fill="url(#sk${s})"/><path d="M${p(.33)} ${p(.28)}Q${p(.38)} ${p(.12)} ${r} ${p(.15)}Q${p(.62)} ${p(.12)} ${p(.67)} ${p(.28)}Q${p(.66)} ${p(.36)} ${p(.6)} ${p(.36)}Q${p(.55)} ${p(.2)} ${p(.4)} ${p(.36)}Q${p(.33)} ${p(.36)} ${p(.33)} ${p(.28)}Z" fill="url(#h1${s})"/><ellipse cx="${p(.44)}" cy="${p(.37)}" rx="${p(.016)}" ry="${p(.02)}" fill="#444"/><ellipse cx="${p(.56)}" cy="${p(.37)}" rx="${p(.016)}" ry="${p(.02)}" fill="#444"/><path d="M${p(.46)} ${p(.42)}Q${r} ${p(.45)} ${p(.54)} ${p(.42)}" stroke="#C07060" stroke-width="1" fill="none"/><rect x="${p(.34)}" y="${p(.53)}" width="${p(.32)}" height="${p(.32)}" rx="${p(.04)}" fill="url(#uf${s})"/><circle cx="${r}" cy="${p(.58)}" r="${p(.012)}" fill="#D4A843"/>`,
+    ym:`${bg}<circle cx="${r}" cy="${p(.36)}" r="${p(.16)}" fill="url(#sk${s})"/><rect x="${p(.34)}" y="${p(.2)}" width="${p(.32)}" height="${p(.1)}" rx="${p(.03)}" fill="url(#h2${s})"/><ellipse cx="${p(.44)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#333"/><ellipse cx="${p(.56)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#333"/><rect x="${p(.32)}" y="${p(.52)}" width="${p(.36)}" height="${p(.32)}" rx="${p(.04)}" fill="url(#bl${s})"/>`,
+    m:`${bg}<circle cx="${r}" cy="${p(.36)}" r="${p(.17)}" fill="url(#sk${s})"/><rect x="${p(.36)}" y="${p(.2)}" width="${p(.28)}" height="${p(.1)}" rx="${p(.03)}" fill="url(#h2${s})"/><ellipse cx="${p(.44)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#444"/><ellipse cx="${p(.56)}" cy="${p(.36)}" rx="${p(.016)}" ry="${p(.02)}" fill="#444"/><rect x="${p(.34)}" y="${p(.53)}" width="${p(.32)}" height="${p(.32)}" rx="${p(.04)}" fill="url(#dk${s})"/><rect x="${p(.42)}" y="${p(.57)}" width="${p(.16)}" height="${p(.07)}" rx="${p(.01)}" fill="#555"/><path d="M${r} ${p(.53)}v${p(.1)}" stroke="#555" stroke-width="1.5"/>`,
+  };
+  return`<svg viewBox="0 0 ${s} ${s}" width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">${df}${faces[t]||faces.m}</svg>`;
+}
+const NORM=[
+  {id:"art494",code:"Art. 494 c.p.",title:"Sostituzione di persona",cat:"reato",color:"#2C3E6B",desc:"Chiunque induce taluno in errore sostituendo la propria all'altrui persona. Reclusione fino a 1 anno."},
+  {id:"art615ter",code:"Art. 615-ter c.p.",title:"Accesso abusivo a sistema informatico",cat:"reato",color:"#2C3E6B",desc:"Introduzione abusiva in sistema informatico protetto. Reclusione fino a 3 anni."},
+  {id:"art640",code:"Art. 640 c.p.",title:"Truffa",cat:"reato",color:"#2C3E6B",desc:"Artifizi o raggiri per procurare ingiusto profitto con altrui danno. Reclusione da 6 mesi a 3 anni."},
+  {id:"art640ter",code:"Art. 640-ter c.p.",title:"Frode informatica",cat:"reato",color:"#2C3E6B",desc:"Alterazione di sistema informatico per ingiusto profitto. Reclusione da 6 mesi a 3 anni."},
+  {id:"art629",code:"Art. 629 c.p.",title:"Estorsione",cat:"reato",color:"#2C3E6B",desc:"Violenza o minaccia per costringere a fare/omettere per ingiusto profitto. Reclusione da 5 a 10 anni."},
+  {id:"art612bis",code:"Art. 612-bis c.p.",title:"Atti persecutori (stalking)",cat:"reato",color:"#2C3E6B",desc:"Condotte reiterate di minaccia/molestia causanti ansia o timore. Reclusione da 1 a 6 anni e 6 mesi."},
+  {id:"art612ter",code:"Art. 612-ter c.p.",title:"Diffusione illecita immagini intime",cat:"reato",color:"#2C3E6B",desc:"Diffusione di immagini sessualmente esplicite senza consenso. Reclusione da 1 a 6 anni."},
+  {id:"art600ter",code:"Art. 600-ter c.p.",title:"Pornografia minorile",cat:"reato",color:"#B03030",desc:"Produzione o commercio di materiale pornografico con minori. Reclusione da 6 a 12 anni."},
+  {id:"art609und",code:"Art. 609-undecies c.p.",title:"Adescamento di minorenni",cat:"reato",color:"#B03030",desc:"Adescamento di minore di 16 anni per reati sessuali. Reclusione da 1 a 3 anni."},
+  {id:"art595",code:"Art. 595 c.p.",title:"Diffamazione",cat:"reato",color:"#2C3E6B",desc:"Offesa all'altrui reputazione comunicando con più persone. Aggravata via social. Fino a 3 anni."},
+  {id:"leg71",code:"L. 71/2017",title:"Contrasto del cyberbullismo",cat:"legge",color:"#6B4D8A",desc:"Prevenzione cyberbullismo. Rimozione contenuti, referente scolastico, ammonimento Questore per minori >14."},
+  {id:"dlgs196",code:"Art. 167 D.Lgs. 196/2003",title:"Trattamento illecito dati",cat:"legge",color:"#6B4D8A",desc:"Violazione norme trattamento dati personali. Sanzioni penali."},
+];
+const AZ=[
+  {id:"az_verbale",code:"PROC-01",title:"Verbalizzazione denuncia/querela",cat:"proc",color:"#2D7A5F",desc:"Redigere verbale con dichiarazioni della persona offesa."},
+  {id:"az_smarrimento",code:"PROC-02",title:"Verbale di smarrimento",cat:"proc",color:"#2D7A5F",desc:"Verbale di smarrimento. Procedura amministrativa."},
+  {id:"az_bloccoIMEI",code:"PROC-03",title:"Richiesta blocco IMEI",cat:"proc",color:"#2D7A5F",desc:"Blocco codice IMEI del dispositivo smarrito/rubato."},
+  {id:"az_piattaforma",code:"PROC-04",title:"Segnalazione a piattaforma social",cat:"proc",color:"#2D7A5F",desc:"Segnalazione per blocco/recupero account o rimozione contenuti."},
+  {id:"az_screenshot",code:"PROC-05",title:"Acquisizione prove digitali",cat:"proc",color:"#2D7A5F",desc:"Certificare screenshot, log, email, messaggi."},
+  {id:"az_traffico",code:"PROC-06",title:"Richiesta dati traffico telematico",cat:"proc",color:"#2D7A5F",desc:"Richiedere IP e log al provider per identificare l'autore."},
+  {id:"az_garante",code:"PROC-07",title:"Segnalazione al Garante Privacy",cat:"proc",color:"#2D7A5F",desc:"Segnalazione per violazione normativa privacy."},
+  {id:"az_minori",code:"PROC-08",title:"Attivazione protocollo minori",cat:"proc",color:"#B03030",desc:"Tutela minori. Comunicazione servizi sociali."},
+  {id:"az_sequestro",code:"PROC-09",title:"Richiesta sequestro preventivo",cat:"proc",color:"#2D7A5F",desc:"Sequestro preventivo contenuti online via PM."},
+  {id:"az_PM",code:"PROC-10",title:"Informativa al Pubblico Ministero",cat:"proc",color:"#2D7A5F",desc:"Informativa di reato al PM con fascicolo indagini."},
+  {id:"az_banca",code:"PROC-11",title:"Contatto istituto bancario",cat:"proc",color:"#2D7A5F",desc:"Blocco operazioni fraudolente, recupero somme."},
+  {id:"az_operatore",code:"PROC-12",title:"Contatto operatore telefonico",cat:"proc",color:"#2D7A5F",desc:"Blocco SIM, verifica portabilità, recupero numero."},
+  {id:"az_ammonimento",code:"PROC-13",title:"Richiesta ammonimento Questore",cat:"proc",color:"#2D7A5F",desc:"Ammonimento per cyberbullismo (responsabile >14 anni)."},
+];
+const TIPO=[
+  {id:"tipo_den",code:"TIPO",title:"Denuncia",cat:"tipo",color:"#1B8A7A",desc:"Reato d'ufficio. Non serve volontà della persona offesa."},
+  {id:"tipo_que",code:"TIPO",title:"Querela",cat:"tipo",color:"#1B8A7A",desc:"Volontà della persona offesa. Termine: 3 mesi (6 per stalking/revenge porn)."},
+  {id:"tipo_sma",code:"TIPO",title:"Denuncia di smarrimento",cat:"tipo",color:"#1B8A7A",desc:"Smarrimento oggetto. Procedura amministrativa, non penale."},
+];
+const ALL=[...TIPO,...NORM,...AZ];
+const SL=[{id:"tipo",label:"Tipo di segnalazione",accepts:["tipo"],icon:"1"},{id:"norm",label:"Normativa applicabile",accepts:["reato","legge"],icon:"2"},{id:"azioni",label:"Azioni e procedure",accepts:["proc"],icon:"3"}];
+const cL={tipo:"Tipo segnalazione",reato:"Codice Penale",legge:"Leggi speciali",proc:"Procedure"};
+const cI={tipo:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1l7 4v6l-7 4-7-4V5l7-4z" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>`,reato:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5 3V1.5h6V3" stroke="currentColor" stroke-width="1.3"/></svg>`,legge:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 8.5V14M5 14h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,proc:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 6l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
+const cO=["tipo","reato","legge","proc"];
+const CS=[
+  {id:1,title:"Account Instagram rubato",sub:"Madre con figlia minore (15 anni)",av:"wc",who:"Sig.ra Martinelli e Sofia (15 anni)",intro:"Buongiorno, sono qui con mia figlia Sofia di 15 anni. Qualcuno le ha rubato l'account Instagram. Non riesce più ad accedere, la password è stata cambiata e anche l'email collegata. Qualcuno sta mandando messaggi ai suoi amici fingendo di essere lei.",qs:[{id:"q1",l:"Quando è successo?",a:"Sofia se ne è accorta ieri sera. Stamattina un'amica le ha detto che dal suo profilo arrivavano messaggi strani."},{id:"q2",l:"Che tipo di messaggi?",a:"Link sospetti tipo 'guarda questa foto di te' e richieste di soldi a compagni di classe."},{id:"q3",l:"Autenticazione a due fattori?",a:"No, non sapeva cosa fosse. Password semplice: nome del cane e anno di nascita."},{id:"q4",l:"Provato il recupero Instagram?",a:"Sì, ma hanno cambiato email e numero. Il sistema non ci riconosce."},{id:"q5",l:"Avete screenshot?",a:"Sì, le amiche hanno mandato screenshot dei messaggi."}],sol:{tipo:["tipo_que"],norm:["art494","art615ter","leg71"],azioni:["az_verbale","az_screenshot","az_piattaforma","az_minori","az_traffico"]},fb:"Sostituzione di persona (art. 494) e accesso abusivo (art. 615-ter). Minorenne: L. 71/2017 e protocollo minori. Querela della madre."},
+  {id:2,title:"Phishing bancario",sub:"Anziano truffato via SMS",av:"om",who:"Sig. Colombo, 72 anni",intro:"Ho ricevuto un SMS dalla banca: conto bloccato. Ho cliccato e inserito le credenziali. Stamattina mancano 3.400 euro.",qs:[{id:"q1",l:"Quando l'SMS?",a:"Due giorni fa. Sembrava identico a quelli della banca."},{id:"q2",l:"Ha ancora l'SMS?",a:"Sì, e anche la schermata del sito falso."},{id:"q3",l:"Contattato la banca?",a:"Sì. Bonifico partito verso conto estero."},{id:"q4",l:"Inserito codici OTP?",a:"Sì, PIN e codice SMS."},{id:"q5",l:"Altri dati forniti?",a:"Codice fiscale e numero carta."}],sol:{tipo:["tipo_que"],norm:["art640ter"],azioni:["az_verbale","az_screenshot","az_banca","az_traffico","az_PM"]},fb:"Frode informatica (art. 640-ter) via phishing. Acquisire SMS e screenshot, contattare banca, informativa PM."},
+  {id:3,title:"Sextortion",sub:"Ragazzo di 16 anni ricattato",av:"tb",who:"Marco (16 anni) con il padre",intro:"Mio figlio Marco ha conosciuto una ragazza su Instagram. Dopo qualche giorno si sono scambiati foto intime. Adesso lo ricattano: 500 euro o diffondono le foto.",qs:[{id:"q1",l:"Come il contatto?",a:"Lo ha contattato lei. Profilo con foto ragazza. Una settimana di chat, poi foto intime."},{id:"q2",l:"Come il ricatto?",a:"DM e WhatsApp: '500 euro entro domani o mando le foto ai follower'."},{id:"q3",l:"Ha pagato?",a:"No, è venuto subito da me."},{id:"q4",l:"Messaggi conservati?",a:"Screenshot di tutto."},{id:"q5",l:"Profilo reale?",a:"Sospettiamo falso. Foto prese da internet."}],sol:{tipo:["tipo_den"],norm:["art629","art600ter"],azioni:["az_verbale","az_screenshot","az_minori","az_piattaforma","az_sequestro","az_traffico","az_PM"]},fb:"Estorsione (art. 629) con pornografia minorile (art. 600-ter). D'ufficio: denuncia. Protocollo minori, sequestro, informativa urgente PM."},
+  {id:4,title:"Revenge porn",sub:"Donna, foto diffuse dall'ex",av:"w",who:"Sig.ra Ferretti, 28 anni",intro:"Il mio ex ha pubblicato su un gruppo Telegram foto intime dalla nostra relazione. Per vendetta.",qs:[{id:"q1",l:"Quale gruppo?",a:"'Foto BG'. Un'amica ha screenshot con il mio nome."},{id:"q2",l:"Prove che sia lui?",a:"Profilo Telegram suo. Quelle foto le aveva solo lui."},{id:"q3",l:"Foto consensuali?",a:"Sì, ma mai dato consenso alla diffusione."},{id:"q4",l:"Minacce?",a:"'Vedrai cosa succede se mi blocchi'. Ho lo screenshot."},{id:"q5",l:"Prove salvate?",a:"Screenshot, messaggi, registrazione schermo."}],sol:{tipo:["tipo_que"],norm:["art612ter"],azioni:["az_verbale","az_screenshot","az_sequestro","az_traffico","az_PM"]},fb:"Art. 612-ter. Querela entro 6 mesi. Prove, sequestro Telegram, dati traffico."},
+  {id:5,title:"Telefono smarrito",sub:"Ragazzo, smartphone perso",av:"ym",who:"Luca, 22 anni",intro:"Ho perso il telefono sul treno Milano-Brescia. È spento. Mi serve il documento per SIM e assicurazione.",qs:[{id:"q1",l:"Ha il codice IMEI?",a:"Sì, nella scatola."},{id:"q2",l:"Trova il mio iPhone?",a:"Offline. Ultima posizione: Brescia."},{id:"q3",l:"Rubato?",a:"No, lasciato sul sedile."},{id:"q4",l:"Dati sensibili?",a:"Email, banca. Ma ho Face ID."},{id:"q5",l:"Contattato Trenitalia?",a:"Non ancora."}],sol:{tipo:["tipo_sma"],norm:[],azioni:["az_smarrimento","az_bloccoIMEI"]},fb:"NON è un reato. Smarrimento + blocco IMEI. Nessun articolo c.p."},
+  {id:6,title:"Cyberstalking",sub:"Donna perseguitata online",av:"w",who:"Sig.ra Damiani, 35 anni",intro:"Un ex collega mi perseguita da tre mesi. Decine di messaggi, profili falsi, commenti inquietanti, scrive ai miei amici.",qs:[{id:"q1",l:"Quanti messaggi?",a:"20-50/giorno. Tutti i social. 6 profili falsi."},{id:"q2",l:"Tipo messaggi?",a:"Da amore a minacce: 'So dove abiti'. 'Ti ho vista al supermercato con la maglia blu'."},{id:"q3",l:"Lo conosce?",a:"Ex collega 2 anni. Mai avuto relazione."},{id:"q4",l:"Documentato?",a:"Quaderno con date. Centinaia di screenshot."},{id:"q5",l:"Già denunciato?",a:"No, speravo smettesse. Ora ho paura."}],sol:{tipo:["tipo_que"],norm:["art612bis"],azioni:["az_verbale","az_screenshot","az_traffico","az_PM"]},fb:"Art. 612-bis. Querela 6 mesi. Prove, tabulati, informativa PM. Possibili misure cautelari."},
+  {id:7,title:"Cyberbullismo a scuola",sub:"Ragazzo di 13 anni deriso",av:"tb",who:"Sig.ra Rizzi e Tommaso (13 anni)",intro:"Mio figlio preso in giro nel gruppo WhatsApp. Meme, soprannomi, profilo Instagram falso col suo nome.",qs:[{id:"q1",l:"Da quanto?",a:"Un mese e mezzo."},{id:"q2",l:"Chi sono?",a:"3-4 compagni. Il capogruppo ha 14 anni."},{id:"q3",l:"Scuola informata?",a:"Sì, ma dicono che succede fuori scuola."},{id:"q4",l:"Come sta?",a:"Non vuole andare a scuola, piange, non dorme."},{id:"q5",l:"Screenshot?",a:"Meme, messaggi, profilo falso."}],sol:{tipo:["tipo_que"],norm:["leg71","art595"],azioni:["az_verbale","az_screenshot","az_minori","az_piattaforma","az_ammonimento"]},fb:"L. 71/2017 + art. 595. Ammonimento Questore. La scuola HA obbligo di intervenire."},
+  {id:8,title:"Truffa e-commerce",sub:"Acquisto mai ricevuto",av:"m",who:"Sig. Parisi, 40 anni",intro:"Portatile online, 899 euro con bonifico. Mai arrivato. Sito chiuso, numero inesistente.",qs:[{id:"q1",l:"Come trovato?",a:"Pubblicità Facebook. 'TechOfferte.shop'."},{id:"q2",l:"Conferma pagamento?",a:"Ricevuta bonifico, conferma email, tracking non funzionante."},{id:"q3",l:"Perché bonifico?",a:"Sconto 10%."},{id:"q4",l:"Altri contatti?",a:"Email muta, telefono inesistente, P.IVA falsa."},{id:"q5",l:"Pagine salvate?",a:"Email conferma, screenshot pubblicità, ricevuta."}],sol:{tipo:["tipo_que"],norm:["art640"],azioni:["az_verbale","az_screenshot","az_banca","az_traffico","az_PM"]},fb:"Truffa (art. 640). Prove, banca, dati traffico, informativa PM."},
+  {id:9,title:"Adescamento online",sub:"Genitore di bambina di 11 anni",av:"wc",who:"Sig.ra Giuliani e Chiara (11 anni)",intro:"Mia figlia chatta con qualcuno su Roblox. Ha chiesto foto, di non dirlo ai genitori, di incontrarsi al parco.",qs:[{id:"q1",l:"Piattaforma?",a:"Roblox, poi Discord."},{id:"q2",l:"Che foto?",a:"Prima normali, poi 'in pigiama'. Nulla di compromettente inviato."},{id:"q3",l:"Non coetaneo?",a:"Linguaggio adulto, domande mirate, regali in-game per il segreto."},{id:"q4",l:"Accettato incontro?",a:"No, è venuta a dirmelo."},{id:"q5",l:"Chat salvate?",a:"Screenshot Discord. Nomi utente annotati."}],sol:{tipo:["tipo_den"],norm:["art609und"],azioni:["az_verbale","az_screenshot","az_minori","az_traffico","az_sequestro","az_PM"]},fb:"Art. 609-undecies. D'ufficio. Protocollo minori urgente, sequestro, dati traffico, PM prioritario."},
+  {id:10,title:"SIM Swapping",sub:"Identità digitale compromessa",av:"m",who:"Dott. Moretti, 45 anni",intro:"Telefono senza segnale. Portabilità a mia insaputa. Accesso a email, social, home banking. Bonifico 8.000 euro.",qs:[{id:"q1",l:"Come scoperta?",a:"Operatore conferma portabilità con copia documenti."},{id:"q2",l:"Come i documenti?",a:"Forse data breach."},{id:"q3",l:"Account compromessi?",a:"Gmail, LinkedIn, Facebook, home banking. Tutti con 2FA SMS."},{id:"q4",l:"Banca contattata?",a:"Conto bloccato, bonifico già partito."},{id:"q5",l:"Password cambiate?",a:"Provando, ma senza numero è complicato."}],sol:{tipo:["tipo_den"],norm:["art494","art615ter","art640ter"],azioni:["az_verbale","az_screenshot","az_operatore","az_banca","az_traffico","az_PM"]},fb:"Art. 494 + 615-ter + 640-ter. SIM swapping. Operatore, banca, dati traffico, PM. Frode d'ufficio."},
+];
+let cc=null,ak=[],fs={tipo:[],norm:[],azioni:[]},xc=null,ft="all",dn={};
+function show(id){const sp=document.getElementById("splashScreen");if(sp)sp.style.display="none";["menuScreen","gameScreen","resultScreen"].forEach(s=>{const e=document.getElementById(s);e.style.display=s===id+"Screen"?(id==="game"?"flex":"block"):"none"});document.body.style.overflow=id==="game"?"hidden":"auto"}
+function showMenu(){show("menu");rMenu()}
+function rMenu(){document.getElementById("menuScreen").innerHTML=`<div class="mw"><div class="mhero"><div class="hbadge">${I.shield}<div><h1>Commissariato Digitale</h1><div class="sub">Simulazione Polizia Postale</div></div></div><p class="mdesc">Sei un agente della Polizia Postale. Ascolta i cittadini, indaga, consulta il database normativo e istruisci correttamente la pratica.</p></div><div class="cgrid">${CS.map(c=>{const d=dn[c.id],cl=d!==undefined?"cbtn dn":"cbtn";const b=d!==undefined?`<span class="bdg" style="background:${d>=80?'var(--pet)':d>=50?'var(--amb)':'var(--ros)'}">${d}%</span>`:"";return`<button class="${cl}" onclick="go(${c.id})"><div style="flex-shrink:0">${av(c.av,52)}</div><div style="flex:1"><div class="cn">Caso #${c.id}</div><div class="ct">${c.title}</div><div class="cs">${c.sub}</div>${b}</div></button>`}).join("")}</div></div>`}
+function go(id){cc=CS.find(c=>c.id===id);ak=[];fs={tipo:[],norm:[],azioni:[]};xc=null;ft="all";show("game");rGame()}
+function rGame(){if(!cc)return;document.getElementById("gameScreen").innerHTML=`<div class="gh"><div class="gl"><button class="bbk" onclick="showMenu()">&#8592; Casi</button><span class="ls">${I.shSm} Commissariato Digitale</span></div><div class="cpill">Caso #${cc.id} — ${cc.title}</div><button class="cbx off" id="cBtn" onclick="doClose()">${I.fasc} Chiudi pratica</button></div><div class="cols"><div class="cL"><div class="cLh" id="cH"></div><div class="cLb" id="cB"></div></div><div class="cC"><div class="cCh"><div>${I.fasc}</div><div><div class="lb">Fascicolo</div><div class="tt">Istruzione della pratica</div></div></div><div class="cCb" id="fB"></div></div><div class="cR"><div class="cRh"><div class="lb">${I.arch} Archivio</div><div class="tt">Database normativo</div><div class="sw">${I.srch}<input type="text" class="si" id="sI" placeholder="Cerca articolo, legge, procedura..." oninput="rA()"></div><div class="fls" id="fF"></div></div><div class="cRb" id="aB"></div></div></div>`;rC();rF();rFl();rA()}
+function rC(){document.getElementById("cH").innerHTML=`<div style="flex-shrink:0">${av(cc.av,48)}</div><div><div class="lb">Sportello</div><div class="nm">${cc.who}</div></div>`;let h=`<div class="bc"><p>"${cc.intro}"</p></div>`;cc.qs.filter(q=>ak.includes(q.id)).forEach(q=>{h+=`<div style="animation:slideIn .25s"><div class="ba">${q.l}</div><div class="bc"><p>"${q.a}"</p></div></div>`});const rm=cc.qs.filter(q=>!ak.includes(q.id));if(rm.length){h+=`<div style="margin-top:8px"><div class="ql">Chiedi al cittadino</div>`;rm.forEach(q=>{h+=`<button class="qb" onclick="aq('${q.id}')">${I.ask} ${q.l}</button>`});h+=`</div>`}const b=document.getElementById("cB");b.innerHTML=h;b.scrollTop=b.scrollHeight}
+function aq(q){if(!ak.includes(q))ak.push(q);rC()}
+function rF(){let h="";SL.forEach(s=>{const it=fs[s.id],fl=it.length>0;h+=`<div class="sl ${fl?'f':'e'}" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="dd(event,'${s.id}');this.classList.remove('dv')"><div class="sh" style="margin-bottom:${fl?6:0}px"><span class="sn ${fl?'y':'n'}">${s.icon}</span><span class="sll ${fl?'y':'n'}">${s.label}</span></div>`;if(!fl)h+=`<div class="sht">${I.drag} Trascina qui dall'archivio</div>`;it.forEach(i=>{h+=`<div class="dp"><span class="dot" style="background:${i.color}"></span><span class="cd" style="color:${i.color}">${i.code}</span><span class="dt">${i.title}</span><button class="rm" onclick="ri('${s.id}','${i.id}')">&times;</button></div>`});h+=`</div>`});const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(t)h+=`<div class="fc">${t} element${t===1?'o':'i'}</div>`;document.getElementById("fB").innerHTML=h;const b=document.getElementById("cBtn");b.className=t?"cbx on":"cbx off"}
+function dd(e,sid){e.preventDefault();const iid=e.dataTransfer.getData("text/plain"),it=ALL.find(a=>a.id===iid);if(!it)return;const sl=SL.find(s=>s.id===sid);if(!sl||!sl.accepts.includes(it.cat)||fs[sid].find(i=>i.id===iid))return;fs[sid].push(it);rF()}
+function ri(s,id){fs[s]=fs[s].filter(i=>i.id!==id);rF()}
+function rFl(){const ff=[{k:"all",l:"Tutti"},{k:"tipo",l:"Tipo"},{k:"norm",l:"Normativa"},{k:"proc",l:"Procedure"}];document.getElementById("fF").innerHTML=ff.map(f=>`<button class="fb ${ft===f.k?'on':''}" onclick="sf('${f.k}')">${f.l}</button>`).join("")}
+function sf(f){ft=f;rFl();rA()}
+function rA(){const t=((document.getElementById("sI")||{}).value||"").toLowerCase();const fl=ALL.filter(i=>{const ms=!t||i.title.toLowerCase().includes(t)||i.code.toLowerCase().includes(t)||i.desc.toLowerCase().includes(t);const mf=ft==="all"||i.cat===ft||(ft==="norm"&&(i.cat==="reato"||i.cat==="legge"));return ms&&mf});const g={};fl.forEach(i=>{if(!g[i.cat])g[i.cat]=[];g[i.cat].push(i)});let h="";cO.filter(c=>g[c]).forEach(c=>{h+=`<div style="margin-bottom:12px"><div class="ch">${cI[c]||""} ${cL[c]}</div>`;g[c].forEach(i=>{const ex=xc===i.id;h+=`<div class="ac ${ex?'ex':''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${i.id}')" onclick="tc('${i.id}')" style="border-left:4px solid ${i.color}"><div class="tp"><div style="min-width:0"><span class="dot" style="background:${i.color}"></span><span class="mono" style="font-weight:700;font-size:11px;color:${i.color}">${i.code}</span> <span style="font-size:11.5px">${i.title}</span></div><span class="aw">&#9660;</span></div>${ex?`<div class="dl">${i.desc}</div>`:''}</div>`});h+=`</div>`});if(!fl.length)h=`<div style="text-align:center;padding:20px;color:#bbb;font-size:11px">Nessun risultato</div>`;document.getElementById("aB").innerHTML=h}
+function tc(id){xc=xc===id?null:id;rA()}
+function doClose(){const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(!t||!cc)return;let cor=0,tot=0,det={};["tipo","norm","azioni"].forEach(s=>{const ex=cc.sol[s]||[],pl=fs[s].map(i=>i.id);const h=ex.filter(e=>pl.includes(e)),m=ex.filter(e=>!pl.includes(e)),x=pl.filter(p=>!ex.includes(p));cor+=h.length;tot+=ex.length;det[s]={h,m,x}});const xt=Object.values(det).reduce((a,d)=>a+d.x.length,0);const sc=Math.max(0,Math.round(((tot>0?cor/tot:0)-xt*0.1)*100));dn[cc.id]=sc;rRes(sc,det)}
+function rRes(sc,det){const col=sc>=80?"var(--pet)":sc>=50?"var(--amb)":"var(--ros)";const lb=sc>=80?"Pratica eccellente":sc>=50?"Pratica parzialmente corretta":"Pratica da rivedere";let h=`<div class="rh"><div class="rn" style="color:${col}">${sc}%</div><div class="rl">${lb}</div></div><div class="rb"><div class="rt">${I.fasc} Analisi del caso</div><p>${cc.fb}</p></div>`;["tipo","norm","azioni"].forEach(s=>{const d=det[s],sl=SL.find(x=>x.id===s);h+=`<div class="rb"><div class="rt">${sl.label}</div>`;d.h.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rhi">${I.ok} ${i.code} — ${i.title}</div>`});d.m.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rmi">${I.ko} Mancante: ${i.code} — ${i.title}</div>`});d.x.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rei">${I.wrn} Non pertinente: ${i.code} — ${i.title}</div>`});if(d.h.length===(cc.sol[s]||[]).length&&!d.x.length)h+=`<div class="rok">Perfetto!</div>`;h+=`</div>`});h+=`<div class="rbt"><button class="bry" onclick="go(${cc.id})">Riprova</button><button class="bmn" onclick="showMenu()">Torna ai casi</button></div>`;document.getElementById("resultScreen").innerHTML=`<div class="rw">${h}</div>`;show("result")}
+function enterApp(){const sp=document.getElementById("splashScreen");sp.classList.add("out");setTimeout(()=>{sp.style.display="none";showMenu()},600)}
+// INIT: show splash, hide others
+document.getElementById("menuScreen").style.display="none";
+document.getElementById("gameScreen").style.display="none";
+document.getElementById("resultScreen").style.display="none";
+document.body.style.overflow="hidden";
+</script>
+</body>
+</html>
