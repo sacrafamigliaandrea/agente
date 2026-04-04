@@ -14,6 +14,7 @@
 <title>Commissariato Digitale — Simulazione Polizia Postale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--blu:#2C3E6B;--bluD:#1A2744;--bluL:#4A6FA5;--pet:#1B8A7A;--petL:#22B09A;--petD:#14665A;--gold:#D4A843;--goldL:#F0CC6B;--amb:#E8A820;--vrd:#2D7A5F;--vio:#6B4D8A;--ros:#B03030;--gri:#7A8494;--griL:#E4E2DC;--bg:#ECEAE4;--paper:#FAFAF7;--card:#fff}
@@ -124,6 +125,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#333}
 .dp .dt{font-size:11px;flex:1}.dp .rm{background:none;border:none;cursor:pointer;color:#bbb;font-size:15px;padding:0;line-height:1;transition:color 0.15s}
 .dp .rm:hover{color:var(--ros)}
 .fc{text-align:center;margin-top:6px;font-size:10px;color:var(--gri)}
+.notes-area{margin-top:10px;border-top:1px solid var(--griL);padding-top:10px}
+.notes-area .notes-hd{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--blu);margin-bottom:6px}
+.notes-area .notes-hd svg{opacity:0.6}
+.notes-area .notes-hint{font-size:10px;color:var(--gri);line-height:1.5;margin-bottom:6px}
+.notes-area textarea{width:100%;min-height:140px;padding:8px 10px;border:1px solid var(--griL);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:11.5px;color:#444;background:#fff;resize:vertical;outline:none;line-height:1.6;transition:border-color 0.15s}
+.notes-area textarea:focus{border-color:var(--bluL);box-shadow:0 0 0 3px rgba(74,111,165,0.08)}
+.notes-area textarea::placeholder{color:#bbb;font-style:italic;white-space:pre-line;line-height:1.7}
+.pdf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#8B1A1A,#A03030);color:#fff;border:none;transition:all 0.15s;margin-bottom:8px}
+.pdf-btn:hover{box-shadow:0 4px 16px rgba(139,26,26,0.25);transform:translateY(-1px)}
+.pdf-btn svg{opacity:0.8}
 .cR{width:35%;border-left:1px solid var(--griL);display:flex;flex-direction:column;background:var(--paper)}
 .cRh{padding:10px 12px;border-bottom:1px solid var(--griL)}
 .cRh .lb{font-size:9px;color:var(--gri);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:4px}
@@ -242,10 +253,23 @@ const INFO_TABS=[
   <div class="info-step"><span class="step-n">1</span><span class="step-t"><strong>Ascolta il cittadino</strong> — Leggi cosa ti racconta e fagli le domande giuste per capire bene il caso.</span></div>
   <div class="info-step"><span class="step-n">2</span><span class="step-t"><strong>Cerca nell'archivio</strong> — A destra trovi le leggi e le procedure. Cerca quella giusta per il caso che hai davanti.</span></div>
   <div class="info-step"><span class="step-n">3</span><span class="step-t"><strong>Costruisci il fascicolo</strong> — Trascina le leggi e le azioni giuste nella zona centrale. Nell'ordine: che tipo di segnalazione è? Quale legge si applica? Cosa deve fare la polizia?</span></div>
-  <div class="info-step"><span class="step-n">4</span><span class="step-t"><strong>Chiudi la pratica</strong> — Quando hai finito, clicca "Chiudi pratica" e scopri come sei andato.</span></div>
+  <div class="info-step"><span class="step-n">4</span><span class="step-t"><strong>Osserva e annota</strong> — Sotto il fascicolo trovi lo spazio per le tue note. Qui scrivi quello che noti nel comportamento del cittadino.</span></div>
+  <div class="info-step"><span class="step-n">5</span><span class="step-t"><strong>Chiudi la pratica</strong> — Quando hai finito, clicca "Chiudi pratica", scopri come sei andato e scarica il fascicolo in PDF.</span></div>
+</div>
+<h3>Cosa scrivo nelle note?</h3>
+<p>Un vero agente osserva sempre la persona che ha davanti: come parla, come si comporta, se il racconto torna. Non per giudicarla, ma per aiutarla meglio. Tu fai la stessa cosa.</p>
+<p>Prova a chiederti:</p>
+<div class="info-steps">
+  <div class="info-step"><span class="step-n" style="background:var(--pet)">?</span><span class="step-t">La persona sembra spaventata, arrabbiata, tranquilla o confusa?</span></div>
+  <div class="info-step"><span class="step-n" style="background:var(--pet)">?</span><span class="step-t">Il racconto è chiaro e ordinato, oppure salta da un punto all'altro?</span></div>
+  <div class="info-step"><span class="step-n" style="background:var(--pet)">?</span><span class="step-t">La persona ha portato prove (screenshot, messaggi) o viene a mani vuote?</span></div>
+  <div class="info-step"><span class="step-n" style="background:var(--pet)">?</span><span class="step-t">C'è un minore coinvolto? Come reagisce? Si vergogna, ha paura, è sollevato?</span></div>
 </div>
 <div class="info-highlight">
-  <strong>Attenzione:</strong> non tutti i casi sono uguali! Alcuni non sono nemmeno dei reati. Sta a te capire la differenza. Parti dai casi Base e guadagna stelle per sbloccare quelli più difficili. Ogni caso risolto bene ti fa salire di grado: da Agente fino a Questore!
+  <strong>Perché è importante?</strong> Perché questi stessi atteggiamenti li metti in atto anche tu quando parli con un adulto di qualcosa di difficile. Se impari a riconoscerli negli altri, impari a riconoscerli in te stesso. E se sei onesto fin da subito con un agente, un insegnante o un genitore, è molto più facile per loro aiutarti davvero.
+</div>
+<div class="info-highlight">
+  <strong>Stelle e gradi:</strong> parti dai casi Base e guadagna stelle per sbloccare quelli più difficili. Ogni caso risolto bene ti fa salire di grado: da Agente fino a Questore!
 </div>`,
 
 `<h3>Informazioni per il docente</h3>
@@ -257,8 +281,14 @@ const INFO_TABS=[
 <p>10 casi di cybercrime reale, calibrati per difficoltà crescente (da Base a Esperto), con sistema di sblocco progressivo basato sulle stelle guadagnate. I casi coprono: furto d'identità, phishing, sextortion, revenge porn, cyberbullismo, stalking, truffa, adescamento, SIM swapping, e un caso-trappola (smarrimento telefono: non è un reato).</p>
 <h3>Competenze attivate</h3>
 <p>Comprensione del testo (ascolto del cittadino), ricerca in un database (archivio normativo), classificazione (tipo di segnalazione), sequenziamento logico (ordine delle procedure), distinzione tra reato e non-reato, consapevolezza della tutela dei minori.</p>
+<h3>Le Note dell'Agente: la strategia metacognitiva</h3>
+<p>Ogni fascicolo include uno spazio in cui lo studente-agente annota le proprie osservazioni sul cittadino: stato d'animo, linguaggio non verbale, coerenza del racconto, segnali di sincerità o reticenza.</p>
+<p>Questa funzione non serve a insegnare tecniche investigative. Serve a costruire consapevolezza metacognitiva: lo studente che impara a leggere gli atteggiamenti del cittadino simulato (paura, vergogna, reticenza, confusione) impara contemporaneamente a riconoscere quegli stessi atteggiamenti in sé stesso quando si trova nella posizione di chi deve chiedere aiuto a un adulto.</p>
+<div class="info-highlight">
+  <strong>Il messaggio educativo implicito:</strong> quando ti succede qualcosa online — un ricatto, una molestia, una truffa — il modo in cui ti presenti all'adulto (genitore, insegnante, agente) influenza direttamente la qualità dell'aiuto che puoi ricevere. Essere onesti, chiari e collaborativi fin da subito non è debolezza: è la strategia più efficace per farsi aiutare. Le note nel fascicolo rendono visibile questo meccanismo dallo specchio dell'autorità.
+</div>
 <h3>Valutazione</h3>
-<p>Il sistema valuta automaticamente: completezza (elementi mancanti), correttezza (normativa giusta), precisione (penalità per elementi non pertinenti). Il punteggio è trasparente e la correzione dettagliata mostra cosa mancava e perché. Il sistema di gradi (da Agente a Questore) funziona come valutazione formativa continuativa.</p>
+<p>Il sistema valuta automaticamente: completezza (elementi mancanti), correttezza (normativa giusta), precisione (penalità per elementi non pertinenti). Il punteggio è trasparente e la correzione dettagliata mostra cosa mancava e perché. Il sistema di gradi (da Agente a Questore) funziona come valutazione formativa continuativa. Il fascicolo PDF esportabile (con timbro, firma, note dell'agente) è uno strumento di documentazione e discussione in classe.</p>
 <div class="info-highlight">
   <strong>Contesto:</strong> percorso di Cittadinanza Digitale "Crescere cittadini digitali" — Scuola Sacra Famiglia, Orzinuovi (BS). Progettato per la secondaria di primo grado (11-14 anni), adattabile alla primaria (classi 4a-5a) con guida del docente.
 </div>`,
@@ -268,6 +298,12 @@ const INFO_TABS=[
 <p>Il suo scopo è avvicinare i ragazzi alla comprensione delle procedure e della normativa che regolano l'attività della Polizia Postale e delle Comunicazioni, favorendo consapevolezza e rispetto per il lavoro delle Forze dell'Ordine.</p>
 <div class="info-highlight">
   <strong>Precisazione:</strong> i casi, le procedure e i riferimenti normativi sono stati semplificati a fini didattici per un pubblico di 11-14 anni. Non costituiscono una rappresentazione esaustiva né operativamente accurata delle reali procedure della Polizia Postale. Le fattispecie di reato e gli articoli del Codice Penale citati sono reali, ma il flusso procedurale è adattato al contesto educativo.
+</div>
+<h3>La funzione "Note dell'Agente"</h3>
+<p>Ogni fascicolo include uno spazio per le osservazioni del giovane studente-agente sul comportamento del cittadino: stato d'animo, linguaggio non verbale, coerenza del racconto. Questa funzione ha un preciso scopo educativo preventivo.</p>
+<p>Insegnando ai ragazzi a osservare i segnali comportamentali dal punto di vista dell'autorità che riceve una denuncia, li si porta a riconoscere quegli stessi atteggiamenti — paura, vergogna, reticenza, minimizzazione — in sé stessi quando sono loro le vittime. Il messaggio implicito: la totale onestà e collaborazione fin dal primo contatto con le Forze dell'Ordine, con un insegnante o con un genitore, è ciò che rende più rapido ed efficace l'intervento di aiuto.</p>
+<div class="info-highlight">
+  <strong>Obiettivo:</strong> abbattere la barriera psicologica che impedisce ai minori di denunciare o chiedere aiuto tempestivamente. Lo strumento non insegna a "interrogare" ma a comprendere che la trasparenza del racconto è nell'interesse della vittima stessa.
 </div>
 <h3>Riferimenti normativi utilizzati</h3>
 <p>Codice Penale: artt. 494, 595, 600-ter, 609-undecies, 612-bis, 612-ter, 615-ter, 629, 635-bis, 640, 640-ter. Legge 29 maggio 2017, n. 71 (Disposizioni a tutela dei minori per la prevenzione e il contrasto del cyberbullismo). D.Lgs. 196/2003, art. 167 (Trattamento illecito di dati personali).</p>
@@ -345,7 +381,7 @@ const cL={tipo:"Tipo segnalazione",reato:"Codice Penale",legge:"Leggi speciali",
 const cI={tipo:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1l7 4v6l-7 4-7-4V5l7-4z" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>`,reato:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5 3V1.5h6V3" stroke="currentColor" stroke-width="1.3"/></svg>`,legge:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 8.5V14M5 14h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`,proc:`<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 6l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
 const cO=["tipo","reato","legge","proc"];
 const CS=[
-  {id:1,title:"Account Instagram rubato",sub:"Madre con figlia minore (15 anni)",av:"mamma2.jpg,adolescente.jpg",who:"Sig.ra Martinelli e Sofia (15 anni)",intro:"Buongiorno, sono qui con mia figlia Sofia di 15 anni. Qualcuno le ha rubato l'account Instagram. Non riesce più ad accedere, la password è stata cambiata e anche l'email collegata. Qualcuno sta mandando messaggi ai suoi amici fingendo di essere lei.",qs:[{id:"q1",l:"Quando è successo?",a:"Sofia se ne è accorta ieri sera. Stamattina un'amica le ha detto che dal suo profilo arrivavano messaggi strani."},{id:"q2",l:"Che tipo di messaggi?",a:"Link sospetti tipo 'guarda questa foto di te' e richieste di soldi a compagni di classe."},{id:"q3",l:"Autenticazione a due fattori?",a:"No, non sapeva cosa fosse. Password semplice: nome del cane e anno di nascita."},{id:"q4",l:"Provato il recupero Instagram?",a:"Sì, ma hanno cambiato email e numero. Il sistema non ci riconosce."},{id:"q5",l:"Avete screenshot?",a:"Sì, le amiche hanno mandato screenshot dei messaggi."}],sol:{tipo:["tipo_que"],norm:["art494","art615ter","leg71"],azioni:["az_verbale","az_screenshot","az_piattaforma","az_minori","az_traffico"]},fb:"Sostituzione di persona (art. 494) e accesso abusivo (art. 615-ter). Minorenne: L. 71/2017 e protocollo minori. Querela della madre."},
+  {id:1,title:"Account Instagram rubato",sub:"Madre con figlia minore (15 anni)",av:"mamma2.jpg,adolescente.jpg",who:"Sig.ra Martinelli e Sofia (15 anni)",intro:"Buongiorno, sono qui con mia figlia Sofia di 15 anni. Qualcuno le ha rubato l'account Instagram. Non riesce più ad accedere, la password è stata cambiata e anche l'email collegata. Qualcuno sta mandando messaggi ai suoi amici fingendo di essere lei.",qs:[{id:"q1",l:"Quando è successo?",a:"Sofia se ne è accorta ieri sera. Stamattina un'amica le ha detto che dal suo profilo arrivavano messaggi strani."},{id:"q2",l:"Che tipo di messaggi?",a:"Link sospetti tipo 'guarda questa foto di te' e richieste di soldi a compagni di classe."},{id:"q3",l:"Autenticazione a due fattori?",a:"No, non sapeva cosa fosse. Password semplice: nome del cane e anno di nascita."},{id:"q4",l:"Provato il recupero Instagram?",a:"Sì, ma hanno cambiato email e numero. Il sistema non ci riconosce."},{id:"q5",l:"Avete screenshot?",a:"Sì, le amiche hanno mandato screenshot dei messaggi."}],sol:{tipo:["tipo_que"],norm:["art494","art615ter","leg71"],azioni:["az_verbale","az_screenshot","az_piattaforma","az_minori","az_traffico"]},fb:"Sostituzione di persona (art. 494) e accesso abusivo (art. 615-ter). Minorenne: L. 71/2017 e protocollo minori. Querela della madre. L'agente può inoltre indicare al cittadino la procedura ufficiale di recupero account Instagram: help.instagram.com/581066165581870"},
   {id:2,title:"Phishing bancario",sub:"Anziano truffato via SMS",av:"papa.jpg",who:"Sig. Colombo, 72 anni",intro:"Ho ricevuto un SMS dalla banca: conto bloccato. Ho cliccato e inserito le credenziali. Stamattina mancano 3.400 euro.",qs:[{id:"q1",l:"Quando l'SMS?",a:"Due giorni fa. Sembrava identico a quelli della banca."},{id:"q2",l:"Ha ancora l'SMS?",a:"Sì, e anche la schermata del sito falso."},{id:"q3",l:"Contattato la banca?",a:"Sì. Bonifico partito verso conto estero."},{id:"q4",l:"Inserito codici OTP?",a:"Sì, PIN e codice SMS."},{id:"q5",l:"Altri dati forniti?",a:"Codice fiscale e numero carta."}],sol:{tipo:["tipo_que"],norm:["art640ter"],azioni:["az_verbale","az_screenshot","az_banca","az_traffico","az_PM"]},fb:"Frode informatica (art. 640-ter) via phishing. Acquisire SMS e screenshot, contattare banca, informativa PM."},
   {id:3,title:"Sextortion",sub:"Ragazzo di 16 anni ricattato",av:"uomo2.jpg,adolescente_maschio.jpg",who:"Marco (16 anni) con il padre",intro:"Mio figlio Marco ha conosciuto una ragazza su Instagram. Dopo qualche giorno si sono scambiati foto intime. Adesso lo ricattano: 500 euro o diffondono le foto.",qs:[{id:"q1",l:"Come il contatto?",a:"Lo ha contattato lei. Profilo con foto ragazza. Una settimana di chat, poi foto intime."},{id:"q2",l:"Come il ricatto?",a:"DM e WhatsApp: '500 euro entro domani o mando le foto ai follower'."},{id:"q3",l:"Ha pagato?",a:"No, è venuto subito da me."},{id:"q4",l:"Messaggi conservati?",a:"Screenshot di tutto."},{id:"q5",l:"Profilo reale?",a:"Sospettiamo falso. Foto prese da internet."}],sol:{tipo:["tipo_den"],norm:["art629","art600ter"],azioni:["az_verbale","az_screenshot","az_minori","az_piattaforma","az_sequestro","az_traffico","az_PM"]},fb:"Estorsione (art. 629) con pornografia minorile (art. 600-ter). D'ufficio: denuncia. Protocollo minori, sequestro, informativa urgente PM."},
   {id:4,title:"Revenge porn",sub:"Donna, foto diffuse dall'ex",av:"signora.jpg",who:"Sig.ra Ferretti, 28 anni",intro:"Il mio ex ha pubblicato su un gruppo Telegram foto intime dalla nostra relazione. Per vendetta.",qs:[{id:"q1",l:"Quale gruppo?",a:"'Foto BG'. Un'amica ha screenshot con il mio nome."},{id:"q2",l:"Prove che sia lui?",a:"Profilo Telegram suo. Quelle foto le aveva solo lui."},{id:"q3",l:"Foto consensuali?",a:"Sì, ma mai dato consenso alla diffusione."},{id:"q4",l:"Minacce?",a:"'Vedrai cosa succede se mi blocchi'. Ho lo screenshot."},{id:"q5",l:"Prove salvate?",a:"Screenshot, messaggi, registrazione schermo."}],sol:{tipo:["tipo_que"],norm:["art612ter"],azioni:["az_verbale","az_screenshot","az_sequestro","az_traffico","az_PM"]},fb:"Art. 612-ter. Querela entro 6 mesi. Prove, sequestro Telegram, dati traffico."},
@@ -356,7 +392,7 @@ const CS=[
   {id:9,title:"Adescamento online",sub:"Genitore di bambina di 11 anni",av:"mamma2.jpg,adolescente2.jpg",who:"Sig.ra Giuliani e Chiara (11 anni)",intro:"Mia figlia chatta con qualcuno su Roblox. Ha chiesto foto, di non dirlo ai genitori, di incontrarsi al parco.",qs:[{id:"q1",l:"Piattaforma?",a:"Roblox, poi Discord."},{id:"q2",l:"Che foto?",a:"Prima normali, poi 'in pigiama'. Nulla di compromettente inviato."},{id:"q3",l:"Non coetaneo?",a:"Linguaggio adulto, domande mirate, regali in-game per il segreto."},{id:"q4",l:"Accettato incontro?",a:"No, è venuta a dirmelo."},{id:"q5",l:"Chat salvate?",a:"Screenshot Discord. Nomi utente annotati."}],sol:{tipo:["tipo_den"],norm:["art609und"],azioni:["az_verbale","az_screenshot","az_minori","az_traffico","az_sequestro","az_PM"]},fb:"Art. 609-undecies. D'ufficio. Protocollo minori urgente, sequestro, dati traffico, PM prioritario."},
   {id:10,title:"SIM Swapping",sub:"Identità digitale compromessa",av:"uomo2.jpg",who:"Dott. Moretti, 45 anni",intro:"Telefono senza segnale. Portabilità a mia insaputa. Accesso a email, social, home banking. Bonifico 8.000 euro.",qs:[{id:"q1",l:"Come scoperta?",a:"Operatore conferma portabilità con copia documenti."},{id:"q2",l:"Come i documenti?",a:"Forse data breach."},{id:"q3",l:"Account compromessi?",a:"Gmail, LinkedIn, Facebook, home banking. Tutti con 2FA SMS."},{id:"q4",l:"Banca contattata?",a:"Conto bloccato, bonifico già partito."},{id:"q5",l:"Password cambiate?",a:"Provando, ma senza numero è complicato."}],sol:{tipo:["tipo_den"],norm:["art494","art615ter","art640ter"],azioni:["az_verbale","az_screenshot","az_operatore","az_banca","az_traffico","az_PM"]},fb:"Art. 494 + 615-ter + 640-ter. SIM swapping. Operatore, banca, dati traffico, PM. Frode d'ufficio."},
 ];
-let cc=null,ak=[],fs={tipo:[],norm:[],azioni:[]},xc=null,ft="all",dn={};
+let cc=null,ak=[],fs={tipo:[],norm:[],azioni:[]},xc=null,ft="all",dn={},agentNotes="",savedNotes={},lastScore=0;
 
 const RANKS=[
   {min:0,name:"Agente",stars:0},
@@ -417,7 +453,7 @@ return`<button class="${cl}" ${ul?`onclick="go(${c.id})"`:''}>
 <div style="flex-shrink:0;${ul?'':'opacity:0.4'}">${av(c.av,52)}</div>
 <div style="flex:1"><div class="cn">Caso #${c.id} ${diffTag}</div><div class="ct">${c.title}</div><div class="cs">${c.sub}</div>${info}</div>
 </button>`}).join("")}</div></div>${FOOTER}`}
-function go(id){if(!isUnlocked(id))return;cc=CS.find(c=>c.id===id);ak=[];fs={tipo:[],norm:[],azioni:[]};xc=null;ft="all";show("game");rGame()}
+function go(id){if(!isUnlocked(id))return;cc=CS.find(c=>c.id===id);ak=[];fs={tipo:[],norm:[],azioni:[]};xc=null;ft="all";agentNotes="";show("game");rGame()}
 function rGame(){if(!cc)return;document.getElementById("gameScreen").innerHTML=`
     <div class="gh">
       <div class="gl">
@@ -452,18 +488,257 @@ function rGame(){if(!cc)return;document.getElementById("gameScreen").innerHTML=`
     </div>`;rC();rF();rFl();rA()}
 function rC(){document.getElementById("cH").innerHTML=`<div style="flex-shrink:0">${av(cc.av,48)}</div><div><div class="lb" style="color:var(--ros)">Cittadino allo sportello</div><div class="nm">${cc.who}</div></div>`;let h=`<div class="bc"><p>"${cc.intro}"</p></div>`;cc.qs.filter(q=>ak.includes(q.id)).forEach(q=>{h+=`<div style="animation:slideIn .25s"><div class="ba">${q.l}</div><div class="bc"><p>"${q.a}"</p></div></div>`});const rm=cc.qs.filter(q=>!ak.includes(q.id));if(rm.length){h+=`<div style="margin-top:8px"><div class="ql">Chiedi al cittadino</div>`;rm.forEach(q=>{h+=`<button class="qb" onclick="aq('${q.id}')">${I.ask} ${q.l}</button>`});h+=`</div>`}const b=document.getElementById("cB");b.innerHTML=h;b.scrollTop=b.scrollHeight}
 function aq(q){if(!ak.includes(q))ak.push(q);rC()}
-function rF(){let h="";SL.forEach(s=>{const it=fs[s.id],fl=it.length>0;h+=`<div class="sl ${fl?'f':'e'}" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="dd(event,'${s.id}');this.classList.remove('dv')"><div class="sh" style="margin-bottom:${fl?6:0}px"><span class="sn ${fl?'y':'n'}">${s.icon}</span><span class="sll ${fl?'y':'n'}">${s.label}</span></div>`;if(!fl)h+=`<div class="sht">${I.drag} Trascina qui dall'archivio</div>`;it.forEach(i=>{h+=`<div class="dp"><span class="dot" style="background:${i.color}"></span><span class="cd" style="color:${i.color}">${i.code}</span><span class="dt">${i.title}</span><button class="rm" onclick="ri('${s.id}','${i.id}')">&times;</button></div>`});h+=`</div>`});const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(t)h+=`<div class="fc">${t} element${t===1?'o':'i'}</div>`;document.getElementById("fB").innerHTML=h;const b=document.getElementById("cBtn");b.className=t?"cbx on":"cbx off"}
+function rF(){let h="";SL.forEach(s=>{const it=fs[s.id],fl=it.length>0;h+=`<div class="sl ${fl?'f':'e'}" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="dd(event,'${s.id}');this.classList.remove('dv')"><div class="sh" style="margin-bottom:${fl?6:0}px"><span class="sn ${fl?'y':'n'}">${s.icon}</span><span class="sll ${fl?'y':'n'}">${s.label}</span></div>`;if(!fl)h+=`<div class="sht">${I.drag} Trascina qui dall'archivio</div>`;it.forEach(i=>{h+=`<div class="dp"><span class="dot" style="background:${i.color}"></span><span class="cd" style="color:${i.color}">${i.code}</span><span class="dt">${i.title}</span><button class="rm" onclick="ri('${s.id}','${i.id}')">&times;</button></div>`});h+=`</div>`});const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(t)h+=`<div class="fc">${t} element${t===1?'o':'i'}</div>`;
+h+=`<div class="notes-area">
+  <div class="notes-hd"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2h8l4 4v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M10 2v4h4M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Note dell'Agente</div>
+  <div class="notes-hint">Osserva il cittadino: stato d'animo, linguaggio non verbale, coerenza del racconto, segnali di sincerità o reticenza. Queste osservazioni fanno parte del fascicolo.</div>
+  <textarea id="agentNotes" oninput="agentNotes=this.value">${agentNotes||''}</textarea>
+</div>`;
+// Add scaffolding overlay if notes are empty
+if(!agentNotes){
+  setTimeout(()=>{
+    const ta=document.getElementById('agentNotes');
+    if(ta&&!ta.value){
+      const scaff=cc.qs?[
+        'STATO D\'ANIMO: Come appare il cittadino? (es: agitato, spaventato, arrabbiato, confuso, calmo...)',
+        '',
+        'LINGUAGGIO NON VERBALE: Cosa noti nel suo comportamento? (es: si guarda intorno, stringe le mani, evita il contatto visivo, si avvicina al genitore...)',
+        '',
+        'COERENZA DEL RACCONTO: Il racconto è ordinato e chiaro? Ci sono contraddizioni o dettagli che non tornano?',
+        '',
+        'COLLABORAZIONE: Il cittadino ha portato prove? È disponibile a rispondere? Nasconde qualcosa o è completamente trasparente?',
+        '',
+        'NOTE LIBERE: Altre osservazioni utili al fascicolo...'
+      ]:[];
+      ta.placeholder=scaff.join('\n');
+    }
+  },100);
+}
+document.getElementById("fB").innerHTML=h;const b=document.getElementById("cBtn");b.className=t?"cbx on":"cbx off"}
 function dd(e,sid){e.preventDefault();const iid=e.dataTransfer.getData("text/plain"),it=ALL.find(a=>a.id===iid);if(!it)return;const sl=SL.find(s=>s.id===sid);if(!sl||!sl.accepts.includes(it.cat)||fs[sid].find(i=>i.id===iid))return;fs[sid].push(it);rF()}
 function ri(s,id){fs[s]=fs[s].filter(i=>i.id!==id);rF()}
 function rFl(){const ff=[{k:"all",l:"Tutti"},{k:"tipo",l:"Tipo"},{k:"norm",l:"Normativa"},{k:"proc",l:"Procedure"}];document.getElementById("fF").innerHTML=ff.map(f=>`<button class="fb ${ft===f.k?'on':''}" onclick="sf('${f.k}')">${f.l}</button>`).join("")}
 function sf(f){ft=f;rFl();rA()}
 function rA(){const t=((document.getElementById("sI")||{}).value||"").toLowerCase();const fl=ALL.filter(i=>{const ms=!t||i.title.toLowerCase().includes(t)||i.code.toLowerCase().includes(t)||i.desc.toLowerCase().includes(t);const mf=ft==="all"||i.cat===ft||(ft==="norm"&&(i.cat==="reato"||i.cat==="legge"));return ms&&mf});const g={};fl.forEach(i=>{if(!g[i.cat])g[i.cat]=[];g[i.cat].push(i)});let h="";cO.filter(c=>g[c]).forEach(c=>{h+=`<div style="margin-bottom:12px"><div class="ch">${cI[c]||""} ${cL[c]}</div>`;g[c].forEach(i=>{const ex=xc===i.id;h+=`<div class="ac ${ex?'ex':''}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${i.id}')" onclick="tc('${i.id}')" style="border-left:4px solid ${i.color}"><div class="tp"><div style="min-width:0"><span class="dot" style="background:${i.color}"></span><span class="mono" style="font-weight:700;font-size:11px;color:${i.color}">${i.code}</span> <span style="font-size:11.5px">${i.title}</span></div><span class="aw">&#9660;</span></div>${ex?`<div class="dl">${i.desc}</div>`:''}</div>`});h+=`</div>`});if(!fl.length)h=`<div style="text-align:center;padding:20px;color:#bbb;font-size:11px">Nessun risultato</div>`;document.getElementById("aB").innerHTML=h}
 function tc(id){xc=xc===id?null:id;rA()}
-function doClose(){const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(!t||!cc)return;const oldRank=getRank(totalStars());let cor=0,tot=0,det={};["tipo","norm","azioni"].forEach(s=>{const ex=cc.sol[s]||[],pl=fs[s].map(i=>i.id);const h=ex.filter(e=>pl.includes(e)),m=ex.filter(e=>!pl.includes(e)),x=pl.filter(p=>!ex.includes(p));cor+=h.length;tot+=ex.length;det[s]={h,m,x}});const xt=Object.values(det).reduce((a,d)=>a+d.x.length,0);const sc=Math.max(0,Math.round(((tot>0?cor/tot:0)-xt*0.1)*100));dn[cc.id]=sc;const newRank=getRank(totalStars());const promoted=newRank.min>oldRank.min;rRes(sc,det,promoted,newRank)}
+function doClose(){const t=fs.tipo.length+fs.norm.length+fs.azioni.length;if(!t||!cc)return;const oldRank=getRank(totalStars());let cor=0,tot=0,det={};["tipo","norm","azioni"].forEach(s=>{const ex=cc.sol[s]||[],pl=fs[s].map(i=>i.id);const h=ex.filter(e=>pl.includes(e)),m=ex.filter(e=>!pl.includes(e)),x=pl.filter(p=>!ex.includes(p));cor+=h.length;tot+=ex.length;det[s]={h,m,x}});const xt=Object.values(det).reduce((a,d)=>a+d.x.length,0);const sc=Math.max(0,Math.round(((tot>0?cor/tot:0)-xt*0.1)*100));dn[cc.id]=sc;lastScore=sc;savedNotes[cc.id]=agentNotes;const newRank=getRank(totalStars());const promoted=newRank.min>oldRank.min;rRes(sc,det,promoted,newRank)}
 function rRes(sc,det,promoted,newRank){const col=sc>=80?"var(--pet)":sc>=50?"var(--amb)":"var(--ros)";const lb=sc>=80?"Pratica eccellente":sc>=50?"Pratica parzialmente corretta":"Pratica da rivedere";const earned=caseStars(sc);
 let h=`<div class="rh"><div class="rn" style="color:${col}">${sc}%</div><div class="rl">${lb}</div><div style="margin-top:8px;display:flex;justify-content:center;gap:4px">${starsRow(earned,3,18)}</div><div style="font-size:11px;color:var(--gri);margin-top:4px">${earned===3?'Eccellente! 3 stelle!':earned===2?'Ottimo! 2 stelle guadagnate':earned===1?'1 stella guadagnata':'Nessuna stella questa volta'}</div></div>`;
 if(promoted){h+=`<div class="promo-box"><div class="promo-label">Promozione!</div><div class="promo-rank">${newRank.name}</div><div style="font-size:11px;color:var(--gri);margin-top:2px">Hai raggiunto un nuovo grado</div><div class="promo-stars">${starsRow(totalStars(),30,8)}</div></div>`}
-h+=`<div class="rb"><div class="rt">${I.fasc} Analisi del caso</div><p>${cc.fb}</p></div>`;["tipo","norm","azioni"].forEach(s=>{const d=det[s],sl=SL.find(x=>x.id===s);h+=`<div class="rb"><div class="rt">${sl.label}</div>`;d.h.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rhi">${I.ok} ${i.code} — ${i.title}</div>`});d.m.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rmi">${I.ko} Mancante: ${i.code} — ${i.title}</div>`});d.x.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rei">${I.wrn} Non pertinente: ${i.code} — ${i.title}</div>`});if(d.h.length===(cc.sol[s]||[]).length&&!d.x.length)h+=`<div class="rok">Perfetto!</div>`;h+=`</div>`});h+=`<div class="rbt"><button class="bry" onclick="go(${cc.id})">Riprova</button><button class="bmn" onclick="showMenu()">Torna ai casi</button><button class="bry" onclick="goHome()" style="flex:0.6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#2C3E6B" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div>`;document.getElementById("resultScreen").innerHTML=`<div class="rw">${h}</div>${FOOTER}`;show("result")}
+h+=`<div class="rb"><div class="rt">${I.fasc} Analisi del caso</div><p>${cc.fb}</p></div>`;["tipo","norm","azioni"].forEach(s=>{const d=det[s],sl=SL.find(x=>x.id===s);h+=`<div class="rb"><div class="rt">${sl.label}</div>`;d.h.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rhi">${I.ok} ${i.code} — ${i.title}</div>`});d.m.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rmi">${I.ko} Mancante: ${i.code} — ${i.title}</div>`});d.x.forEach(x=>{const i=ALL.find(a=>a.id===x);h+=`<div class="rei">${I.wrn} Non pertinente: ${i.code} — ${i.title}</div>`});if(d.h.length===(cc.sol[s]||[]).length&&!d.x.length)h+=`<div class="rok">Perfetto!</div>`;h+=`</div>`});h+=`<button class="pdf-btn" onclick="exportPDF()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2h8l4 4v8a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="#fff" stroke-width="1.3" fill="none"/><path d="M10 2v4h4" stroke="#fff" stroke-width="1.2"/><path d="M5 9h6M5 11.5h4" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg> Scarica fascicolo PDF</button>`;
+h+=`<div class="rbt"><button class="bry" onclick="go(${cc.id})">Riprova</button><button class="bmn" onclick="showMenu()">Torna ai casi</button><button class="bry" onclick="goHome()" style="flex:0.6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 8l6-6 6 6M4 7v6a1 1 0 001 1h2v-3h2v3h2a1 1 0 001-1V7" stroke="#2C3E6B" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Home</button></div>`;document.getElementById("resultScreen").innerHTML=`<div class="rw">${h}</div>${FOOTER}`;show("result")}
+// ═══════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════
+function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,H=297,M=18;
+  const pw=W-M*2;
+  let y=M;
+  const today=new Date();
+  const dateStr=today.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'});
+  const timeStr=today.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const rk=getRank(totalStars());
+
+  // Helper: wrapped text
+  function wt(text,x,yy,maxW,sz,style){
+    doc.setFontSize(sz||10);
+    if(style)doc.setFont('helvetica',style);
+    const lines=doc.splitTextToSize(text,maxW||pw);
+    doc.text(lines,x,yy);
+    return yy+lines.length*(sz?sz*0.45:4.5);
+  }
+
+  // Helper: check page break
+  function chk(need){if(y+need>H-25){doc.addPage();y=M;drawHeader();return true}return false}
+
+  function drawHeader(){
+    // Top border
+    doc.setDrawColor(44,62,107);doc.setLineWidth(0.8);
+    doc.line(M,y,W-M,y);y+=1;
+    doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=5;
+
+    // Title
+    doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(44,62,107);
+    doc.text('POLIZIA POSTALE E DELLE COMUNICAZIONI',W/2,y,{align:'center'});y+=5;
+    doc.setFontSize(9);doc.setTextColor(100);doc.setFont('helvetica','normal');
+    doc.text('Commissariato Digitale — Simulazione Didattica',W/2,y,{align:'center'});y+=4;
+
+    // Double line
+    doc.setDrawColor(44,62,107);doc.setLineWidth(0.8);
+    doc.line(M,y,W-M,y);y+=1;
+    doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=6;
+  }
+
+  drawHeader();
+
+  // Case info box
+  doc.setDrawColor(200);doc.setFillColor(248,248,245);
+  doc.roundedRect(M,y,pw,20,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(44,62,107);
+  doc.text(`FASCICOLO N. ${cc.id}/${today.getFullYear()}`,M+4,y+6);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(80);
+  doc.text(`Caso: ${cc.title}`,M+4,y+11);
+  doc.text(`Cittadino: ${cc.who}`,M+4,y+16);
+  doc.text(`Data: ${dateStr} — Ore: ${timeStr}`,W-M-4,y+6,{align:'right'});
+  doc.text(`Agente: ${rk.name}`,W-M-4,y+11,{align:'right'});
+  doc.text(`Punteggio: ${lastScore}%`,W-M-4,y+16,{align:'right'});
+  y+=26;
+
+  // Section: Dichiarazione iniziale
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(44,62,107);
+  doc.text('DICHIARAZIONE INIZIALE DEL CITTADINO',M,y);y+=5;
+  doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(60);
+  y=wt('"'+cc.intro+'"',M,y,pw,9,'italic');y+=4;
+
+  // Section: Domande e risposte
+  chk(20);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(44,62,107);
+  doc.text('COLLOQUIO INVESTIGATIVO',M,y);y+=5;
+  const askedQs=cc.qs.filter(q=>ak.includes(q.id));
+  if(askedQs.length===0){
+    doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(120);
+    doc.text('Nessuna domanda posta al cittadino.',M,y);y+=5;
+  } else {
+    askedQs.forEach((q,i)=>{
+      chk(18);
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(44,62,107);
+      doc.text(`D${i+1}: ${q.l}`,M,y);y+=4;
+      doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(60);
+      y=wt('"'+q.a+'"',M+4,y,pw-4,9,'italic');y+=3;
+    });
+  }
+  y+=3;
+
+  // Section: Fascicolo
+  chk(20);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(44,62,107);
+  doc.text('ISTRUZIONE DELLA PRATICA',M,y);y+=6;
+
+  const sections=[
+    {key:'tipo',label:'TIPO DI SEGNALAZIONE'},
+    {key:'norm',label:'NORMATIVA APPLICATA'},
+    {key:'azioni',label:'AZIONI E PROCEDURE DISPOSTE'}
+  ];
+  sections.forEach(sec=>{
+    chk(14);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80);
+    doc.text(sec.label,M,y);y+=4;
+    const items=fs[sec.key];
+    if(items.length===0){
+      doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(150);
+      doc.text('— Nessun elemento inserito —',M+4,y);y+=4;
+    } else {
+      items.forEach(it=>{
+        chk(6);
+        doc.setFont('courier','bold');doc.setFontSize(8);doc.setTextColor(44,62,107);
+        doc.text(it.code,M+4,y);
+        doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50);
+        doc.text(it.title,M+22,y);
+        y+=4.5;
+      });
+    }
+    y+=2;
+  });
+
+  // Section: Note dell'Agente
+  chk(30);
+  doc.setDrawColor(44,62,107);doc.setLineWidth(0.5);
+  doc.line(M,y,W-M,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(44,62,107);
+  doc.text('NOTE DELL\'AGENTE — OSSERVAZIONI SUL CITTADINO',M,y);y+=2;
+  doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(130);
+  doc.text('Stato d\'animo, linguaggio non verbale, coerenza del racconto, segnali di sincerità o reticenza',M,y+3);y+=7;
+
+  const notes=savedNotes[cc.id]||agentNotes||'';
+  if(notes.trim()){
+    doc.setDrawColor(220);doc.setFillColor(252,252,250);
+    const noteLines=doc.splitTextToSize(notes,pw-8);
+    const noteH=Math.max(20,noteLines.length*4.5+8);
+    chk(noteH+5);
+    doc.roundedRect(M,y,pw,noteH,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50);
+    doc.text(noteLines,M+4,y+5);
+    y+=noteH+4;
+  } else {
+    doc.setDrawColor(200);
+    for(let i=0;i<5;i++){y+=6;doc.line(M,y,W-M,y);}
+    y+=4;
+  }
+
+  // Stamp and signature area
+  chk(55);
+  y+=4;
+  doc.setDrawColor(44,62,107);doc.setLineWidth(0.5);
+  doc.line(M,y,W-M,y);y+=10;
+
+  // Simulated circular stamp (left side)
+  const stampX=M+25,stampY=y+15,stampR=14;
+  doc.setDrawColor(44,62,107);doc.setLineWidth(0.6);
+  doc.circle(stampX,stampY,stampR);
+  doc.circle(stampX,stampY,stampR-2);
+  doc.setFont('helvetica','bold');doc.setFontSize(5);doc.setTextColor(44,62,107);
+
+  // Stamp text in circle - top arc
+  const stampTexts=['COMMISSARIATO','DIGITALE'];
+  doc.setFontSize(5.5);
+  doc.text('COMMISSARIATO',stampX,stampY-7,{align:'center'});
+  doc.text('DIGITALE',stampX,stampY-3.5,{align:'center'});
+
+  // Center of stamp - star
+  doc.setFontSize(12);
+  doc.text('\u2605',stampX,stampY+2.5,{align:'center'});
+
+  // Bottom stamp text
+  doc.setFontSize(4.5);
+  doc.text('SIMULAZIONE DIDATTICA',stampX,stampY+7,{align:'center'});
+  doc.text(`N. ${cc.id}/${today.getFullYear()}`,stampX,stampY+10,{align:'center'});
+
+  // Apply slight rotation effect with lines
+  doc.setDrawColor(44,62,107);doc.setLineWidth(0.15);
+  for(let a=0;a<360;a+=30){
+    const rad=a*Math.PI/180;
+    const x1=stampX+Math.cos(rad)*(stampR-0.5);
+    const y1=stampY+Math.sin(rad)*(stampR-0.5);
+    const x2=stampX+Math.cos(rad)*(stampR-1.5);
+    const y2=stampY+Math.sin(rad)*(stampR-1.5);
+    doc.line(x1,y1,x2,y2);
+  }
+
+  // Signature area (right side)
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80);
+  doc.text('L\'Agente operante',W-M-45,y);
+  doc.setDrawColor(150);doc.setLineWidth(0.3);
+  doc.line(W-M-55,y+18,W-M-5,y+18);
+  doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(130);
+  doc.text('(firma)',W-M-30,y+22,{align:'center'});
+
+  // Date stamp
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80);
+  doc.text(`${dateStr}`,W-M-30,y+28,{align:'center'});
+
+  // Grade and stars
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(44,62,107);
+  doc.text(`Grado: ${rk.name}`,W-M-55,y+8);
+  const stars=totalStars();
+  let starStr='';for(let i=0;i<Math.min(stars,30);i++)starStr+='\u2605';
+  doc.setFontSize(6);doc.setTextColor(180,150,50);
+  doc.text(starStr.substring(0,15),W-M-55,y+12);
+  if(starStr.length>15)doc.text(starStr.substring(15),W-M-55,y+15);
+
+  // Footer
+  const fy=H-12;
+  doc.setDrawColor(200);doc.setLineWidth(0.3);
+  doc.line(M,fy-3,W-M,fy-3);
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(150);
+  doc.text('Commissariato Digitale — Simulazione didattica — Percorso di Cittadinanza Digitale',W/2,fy,{align:'center'});
+  doc.text('Scuola Sacra Famiglia, Orzinuovi (BS) — Andrea Cerioli \u00A9 2026',W/2,fy+3.5,{align:'center'});
+  doc.text('Documento generato a fini educativi. Non ha alcun valore legale.',W/2,fy+7,{align:'center'});
+
+  doc.save(`Fascicolo_Caso${cc.id}_${cc.title.replace(/\s+/g,'_')}.pdf`);
+}
+
 function enterApp(){const sp=document.getElementById("splashScreen");sp.classList.add("out");setTimeout(()=>{sp.style.display="none";showMenu()},600)}
 // INIT: show splash, hide others
 document.getElementById("menuScreen").style.display="none";
